@@ -1,4 +1,5 @@
 #' Conduct sparse medication with elastic net
+#'
 #' Fit a mediation model via penalized maximum likelihood and structural equation model.
 #' The regularization path is computed for the lasso or elasticnet penalty at a grid of
 #' values for the regularization parameter lambda. Currently, mediation analysis is developed based on gaussian assumption.
@@ -139,12 +140,11 @@ sparse.mediation = function(X,M,Y,tol=10^(-10),max.iter=100,lambda = log(1+(1:50
 
   return(list(
     c = cest,
-    hatb=betaest[(1:V)+1,],
-    hata=betaest[(1:V)+V+1,],
-    medest = betaest[(1:V)+1,]*betaest[(1:V)+V+1,],
+    hatb=betaest[(1:V)+1,]*Y.sd/M.sd,
+    hata=betaest[(1:V)+V+1,]*M.sd/X.sd,
+    medest = betaest[(1:V)+1,]*betaest[(1:V)+V+1,]*Y.sd/X.sd,
     alpha=alpha,
     lambda = lambda,
     nump=nump
   ))
 }
-

@@ -1,4 +1,4 @@
-#' Conduct K-fold cross validation for sparse medication with elastic net with multiple tuning parameters
+#' Conduct K-fold cross validation for sparse medication with elastic net with multiple tuning parameters (old version)
 #'
 #' @param X One-dimensional predictor
 #' @param M Multivariate mediator
@@ -15,28 +15,22 @@
 #' @param disply devault=FALSE
 #' @return re list of sparse.mediation per each alpha
 #' @examples
-#' N=200
+#' N=100
 #' V=50
 #' set.seed(1234)
 #' a = rbinom(V,1,0.1)*5;b<-a
 #' X = rnorm(N)
 #' M =  X %*% t(a)+ matrix(rnorm(N*V),N,V)
-#' Y =  as.vector(X + M %*% b + rnorm(N))
-#' system.time(cvfit<-cv.sparse.mediation(X, M, Y, tol = 10^(-10), K = 8, max.iter = 100,lambda = log(1 + (1:10)/25), alpha = 1, tau=c(0.25,0.5,1,2,4,8),figure = NULL, multicore = 8, seednum = 1e+06, display = TRUE))
-#' cvfit$cv.lambda
-#' cvfit$cv.tau
-#' fit<-sparse.mediation(X,M,Y,tol=10^(-10),max.iter=100,lambda = cvfit$cv.lambda, alpha=cvfit$cv.alpha,tau=cvfit$cv.tau)
-#' nonzerolist = c(0,as.numeric(abs(c(fit[[1]]$hatb, fit[[1]]$hata))<0.0001))
-#' refit=sparse.mediation(X,M,Y,lambda = 100000,alpha=cvfit$cv.alpha, glmnet.penalty.factor=nonzerolist)
-#' cbind(a*b,refit$medest)
+#' Y =  X + M %*% b + rnorm(N)
+#' cv.sparse.mediation.old(X,M,Y,tol=10^(-10),max.iter=100,lambda = log(1+(1:15)/50))
 #' @author Seonjoo Lee, \email{sl3670@cumc.columbia.edu}
 #' @references TBA
 #' @keywords hdlfpca glmnet
 #' @export
 
 
-cv.sparse.mediation= function(X,M,Y,tol=10^(-10),K=5,max.iter=100,
-                              lambda = log(1+(1:15)/50),alpha=(0:4)/4,tau=c(0.5,1,2),
+cv.sparse.mediation.old= function(X,M,Y,tol=10^(-10),K=5,max.iter=100,
+                              lambda = log(1+(1:15)/50),alpha=(0:4)/4,
                               figure=NULL,multicore=1,seednum=1000000,display=TRUE){
   library(parallel)
   library(MASS)
@@ -62,44 +56,34 @@ cv.sparse.mediation= function(X,M,Y,tol=10^(-10),K=5,max.iter=100,
 
   if(multicore>1){
     options(cores = multicore)
-    z<-mclapply(1:K, function(fold){cv.sparse.mediation.threeway.subroutine(fold, Y,X,M,cvid,lambda, alpha,tau,max.iter, tol)}, mc.cores=multicore)
+    z<-mclapply(1:K, function(k){cv.sparse.mediation.twoway.subroutine(k, Y,X,M,cvid,lambda, alpha,max.iter, tol)}, mc.cores=multicore)
   }else{
-    z<-lapply(1:K, function(fold){cv.sparse.mediation.threeway.subroutine(fold, Y,X,M,cvid,lambda,alpha,tau,max.iter, tol)})
+    z<-lapply(1:K, function(k){cv.sparse.mediation.twoway.subroutine(k, Y,X,M,cvid,lambda,alpha,max.iter, tol)})
   }
 
-  mseest=alphaest=lambdaest=tauest=array(NA,dim=c(length(alpha),length(lambda),length(tau)))
-  
-
-  for (k in 1:length(tau)){
-    for (l in 1:length(alpha)){
+  mseest=alphaest=lambdaest=matrix(NA,length(alpha),length(lambda))
+  for (l in 1:length(alpha)){
     tmpmse=matrix(NA,K,length(lambda))
-      for (j in 1:K){
-        tmpmse[j,]=(z[[j]]$mse)[[k]][[l]]$mse
-      }
-      mseest[l,,k]=apply(tmpmse,2,sum)
-      alphaest[l,,k]=rep(z[[j]]$mse[[k]][[l]]$alpha,length(lambda))
-      lambdaest[l,,k]=z[[j]]$mse[[k]][[l]]$lambda
-      tauest[l,,k]<-tau[k]
-      
+    for (j in 1:K){
+      tmpmse[j,]=(z[[j]]$mse)[[l]]$mse
     }
+    mseest[l,]=apply(tmpmse,2,sum)
+    alphaest[l,]=rep((z[[j]]$mse)[[l]]$alpha,length(lambda))
+    lambdaest[l,]=(z[[j]]$mse)[[l]]$lambda
+
   }
   minloc=which.min(mseest)
   min.lambda=lambdaest[minloc]
   min.alpha=alphaest[minloc]
-  min.tau=tauest[minloc]
-  
+
   if (display==TRUE){
     colnum=rainbow(length(alpha),end=0.7)
-    plot(lambdaest[1,,1],mseest[1,,1],type='l',col=colnum[1],ylim=range(mseest),lty=1);points(lambdaest[1,,1],mseest[1,,1],pch=15,col=colnum[1])
-    for (k in 1:length(tau)){
-      for (j in 1:length(alpha)){
-        lines(lambdaest[j,,k],mseest[j,,k],type='l',col=colnum[j],lty=k);points(lambdaest[j,,k],mseest[j,,k],pch=15,col=colnum[j])
-        }
+    plot(lambdaest[1,],mseest[1,],type='l',col=colnum[1],ylim=range(mseest));points(lambdaest[1,],mseest[1,],pch=15,col=colnum[1])
+    for (j in 1:length(alpha)){lines(lambdaest[j,],mseest[j,],type='l',col=colnum[j]);points(lambdaest[j,],mseest[j,],pch=15,col=colnum[j])}
     legend('topright',paste('alpha=',round(alpha,2),sep=""),lty=1,,lwd=3,col=colnum)
-    }
   }
 
-  return(list(cv.lambda=min.lambda,cv.tau=min.tau, cv.alpha=min.alpha,cv.mse=mseest[minloc],mse=mseest, lambda=lambdaest, tau=tauest,alpha=alphaest,z=z))
+  return(list(cv.lambda=min.lambda, cv.alpha=min.alpha,cv.mse=mseest[minloc],mse=mseest, lambda=lambdaest, alpha=alphaest,z=z))
 
 }
 
@@ -116,24 +100,6 @@ cv.sparse.mediation.twoway.subroutine<- function(k, Y,X,M,cvid,lambda,alpha,max.
   return(list(r.train=r.train,mse=mse))
 }
 
-cv.sparse.mediation.threeway.subroutine<- function(fold, Y,X,M,cvid,lambda,alpha,tau,max.iter=100, tol=10^(-10)){
-  Y.test=Y[cvid==fold]#as.vector(scale(Y[cvid==k],center=TRUE,scale=FALSE))
-  Y.train=Y[cvid!=fold]
-  X.test=matrix(X[cvid==fold,],sum(cvid==fold),1)#matrix(scale(X[cvid==k,],center=TRUE,scale=FALSE),sum(cvid==k),1)
-  X.train=X[cvid!=fold]
-  M.test=M[cvid==fold,]#scale(M[cvid==k,],center=TRUE,scale=FALSE)
-  M.train=M[cvid!=fold,]
-  #boxplot(t(alpha.train))
-  r.train=sparse.mediation.threeway(X.train,M.train,Y.train,tol=tol,max.iter=max.iter,lambda = lambda,alpha=alpha,tau=tau)
-#  return(r.train)
-#}
-  mse<-c()
-  length.alpha=length(alpha)
-  for (l in 1:length(tau)){
-    mse[[l]] = lapply(r.train[[(l-1)*length.alpha + (1:length.alpha)]], function(obj){cv.sparse.mediation.msecomputing(obj, Y.test, X.test, M.test)})
-  }
-  return(list(r.train=r.train,mse=mse))
-}
 
 cv.sparse.mediation.msecomputing<-function(obj, Y.test, X.test, M.test){
   V = (nrow(obj$beta))

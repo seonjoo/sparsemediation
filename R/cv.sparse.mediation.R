@@ -30,7 +30,7 @@
 #' X = rnorm(N)
 #' M =  X %*% t(a)+ matrix(rnorm(N*V),N,V)
 #' Y =  as.vector(X + M %*% b + rnorm(N))
-#' system.time(cvfit<-cv.sparse.mediation(X, M, Y, tol = 10^(-10), K = 8, max.iter = 100,lambda = log(1 + (1:10)/25), alpha = 1, tau=c(0.25,0.5,1,2,4,8),figure = NULL, multicore = 8, seednum = 1e+06, display = TRUE))
+#' system.time(cvfit<-cv.sparse.mediation(X, M, Y, tol = 10^(-10), K = 8, max.iter = 100,lambda = log(1 + (1:10)/25), alpha = 1, tau=c(0.25,0.5,1,2,4,8),multicore = 8, seednum = 1e+06))
 #' cvfit$cv.lambda
 #' cvfit$cv.tau
 #' fit<-sparse.mediation(X,M,Y,tol=10^(-10),max.iter=100,lambda = cvfit$cv.lambda, alpha=cvfit$cv.alpha,tau=cvfit$cv.tau)

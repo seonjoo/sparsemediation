@@ -36,22 +36,23 @@
 #' @author Seonjoo Lee, \email{sl3670@cumc.columbia.edu}
 #' @references TBA
 #' @keywords highdimensional mediation glmnet
-#' @export
+#' @import parallel
+#' @import MASS
+#' @import glmnet
 
 sparse.mediation.old = function(X,M,Y,tol=10^(-10),max.iter=100,lambda = log(1+(1:50)/125),
-                            figure=NULL,display=FALSE,
                             glmnet.penalty.factor=c(0,rep(1,2*V)),alpha=1){
-  library(parallel)
-  library(MASS)
-  library(glmnet)
+  #library(parallel)
+  #library(MASS)
+  #library(glmnet)
   ## Center all values, and also make their scales to be 1. In this context, all coefficients will be dexribed in terms of correlation or partial correlations.
   N = nrow(M)
   V = ncol(M)
   Y.mean=mean(Y)
   X.mean=mean(X)
   M.mean=apply(M,2,mean)
-  Y.sd=sqrt(var(Y))
-  X.sd=sqrt(var(X))
+  Y.sd=as.vector(sqrt(var(Y)))
+  X.sd=as.vector(sqrt(var(X)))
   M.sd=sqrt(apply(M,2,var))
   Y = scale(Y,center=TRUE,scale=TRUE)
   X = matrix(scale(X,center=TRUE,scale=TRUE),N,1)
@@ -122,21 +123,6 @@ sparse.mediation.old = function(X,M,Y,tol=10^(-10),max.iter=100,lambda = log(1+(
   medest = betaest[(1:V)+1,]*betaest[(1:V)+V+1,]
   nump=apply(betaest,2,function(x){sum(abs(x)>0)})
 
-  #if (display==TRUE){
-  #  cols=rainbow(V)
-    #if(is.null(figure)==FALSE){png(paste(figure,'.png',sep=""),width=1600,height=1600,res=200)}
-  #  par(mfrow=c(2,2))
-  #  x1 =  betaest[(1:V)+1,];x2=betaest[(1:V)+V+1,]
-  #  plot(lambda,x1[1,],type='l',ylim=range(x1),lty=1,col=cols[1], main='Beta',ylab='beta',xlab='Lambda Loc')
-  #  for (j in 2:V){lines(lambda,x1[j,],lty=1,col=cols[j])}
-  #  plot(lambda,x2[1,],type='l',ylim=range(x2),lty=1,col=cols[1], main='Alpha',ylab='alpha',xlab='Lambda Loc')
-  #  for (j in 2:V){lines(lambda,x2[j,],lty=2,col=cols[j])}
-  #  plot(lambda,medest[1,],type='l',ylim=range(medest),lty=1,col=cols[1],main='Mediation',ylab='alpha*beta',xlab='Lambda Loc')
-  #  for (j in 2:V){lines((lambda),medest[j,],lty=1,col=cols[j])}
-
-  #  plot(lambda,nump,pch=15,main='Number of Non-zero Parameters');lines(lambda,nump)
-    #if(is.null(figure)==FALSE){dev.off()}
-  #  }
 
   return(list(
     c = cest,

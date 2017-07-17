@@ -26,7 +26,7 @@
 #' @author Seonjoo Lee, \email{sl3670@cumc.columbia.edu}
 #' @references TBA
 #' @keywords hdlfpca glmnet
-#' @export
+
 
 
 cv.sparse.mediation.old= function(X,M,Y,tol=10^(-10),K=5,max.iter=100,

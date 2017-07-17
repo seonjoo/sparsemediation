@@ -13,7 +13,15 @@
 #' @param multicore (default=1) number of multicore
 #' @param seednum (default=10000) seed number for cross validation
 #' @param disply devault=FALSE
-#' @return re list of sparse.mediation per each alpha
+#' @return cv.lambda: optimal lambda
+#' @return cv.tau: optimal tau
+#' @return cv.alpha: optimal tau
+#' @return cv.mse: minimum MSE value
+#' @return mse: Array of MSE, length(alpha) x length(lambda) x length (tau)
+#' @return lambda: vector of lambda
+#' @return tau: vector of tau used
+#' @return alpha: vector of alpha used
+#' @return z: cross-valication results
 #' @examples
 #' N=200
 #' V=50
@@ -32,12 +40,15 @@
 #' @author Seonjoo Lee, \email{sl3670@cumc.columbia.edu}
 #' @references TBA
 #' @keywords hdlfpca glmnet
+#' @import parallel
+#' @import MASS
+#' @import glmnet
 #' @export
 
 
 cv.sparse.mediation= function(X,M,Y,tol=10^(-10),K=5,max.iter=100,
                               lambda = log(1+(1:15)/50),alpha=(0:4)/4,tau=c(0.5,1,2),
-                              figure=NULL,multicore=1,seednum=1000000,display=TRUE){
+                              figure=NULL,multicore=1,seednum=1000000){
   library(parallel)
   library(MASS)
   library(glmnet)
@@ -68,7 +79,7 @@ cv.sparse.mediation= function(X,M,Y,tol=10^(-10),K=5,max.iter=100,
   }
 
   mseest=alphaest=lambdaest=tauest=array(NA,dim=c(length(alpha),length(lambda),length(tau)))
-  
+
 
   for (k in 1:length(tau)){
     for (l in 1:length(alpha)){
@@ -80,24 +91,13 @@ cv.sparse.mediation= function(X,M,Y,tol=10^(-10),K=5,max.iter=100,
       alphaest[l,,k]=rep(z[[j]]$mse[[k]][[l]]$alpha,length(lambda))
       lambdaest[l,,k]=z[[j]]$mse[[k]][[l]]$lambda
       tauest[l,,k]<-tau[k]
-      
+
     }
   }
   minloc=which.min(mseest)
   min.lambda=lambdaest[minloc]
   min.alpha=alphaest[minloc]
   min.tau=tauest[minloc]
-  
-  if (display==TRUE){
-    colnum=rainbow(length(alpha),end=0.7)
-    plot(lambdaest[1,,1],mseest[1,,1],type='l',col=colnum[1],ylim=range(mseest),lty=1);points(lambdaest[1,,1],mseest[1,,1],pch=15,col=colnum[1])
-    for (k in 1:length(tau)){
-      for (j in 1:length(alpha)){
-        lines(lambdaest[j,,k],mseest[j,,k],type='l',col=colnum[j],lty=k);points(lambdaest[j,,k],mseest[j,,k],pch=15,col=colnum[j])
-        }
-    legend('topright',paste('alpha=',round(alpha,2),sep=""),lty=1,,lwd=3,col=colnum)
-    }
-  }
 
   return(list(cv.lambda=min.lambda,cv.tau=min.tau, cv.alpha=min.alpha,cv.mse=mseest[minloc],mse=mseest, lambda=lambdaest, tau=tauest,alpha=alphaest,z=z))
 

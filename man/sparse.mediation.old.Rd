@@ -5,8 +5,8 @@
 \title{Conduct sparse medication with elastic net (Old version)}
 \usage{
 sparse.mediation.old(X, M, Y, tol = 10^(-10), max.iter = 100,
-  lambda = log(1 + (1:50)/125), figure = NULL, display = FALSE,
-  glmnet.penalty.factor = c(0, rep(1, 2 * V)), alpha = 1)
+  lambda = log(1 + (1:50)/125), glmnet.penalty.factor = c(0, rep(1, 2 * V)),
+  alpha = 1)
 }
 \arguments{
 \item{X}{One-dimensional predictor}
@@ -21,11 +21,11 @@ sparse.mediation.old(X, M, Y, tol = 10^(-10), max.iter = 100,
 
 \item{lambda}{(default=log(1+(1:50)/125)) tuning parameter for L1 penalization}
 
-\item{figure}{(defult=NULL) print figures for mean predictive errors by tuning parameters alpha and lambda}
-
 \item{glmnet.penalty.factor}{(default=c(0,rep(1,2*V))) give different weight of penalization for the 2V mediation paths.}
 
 \item{alpha}{(defult=1) tuning parameter for L2 penalization}
+
+\item{figure}{(defult=NULL) print figures for mean predictive errors by tuning parameters alpha and lambda}
 }
 \value{
 c directeffect
@@ -63,13 +63,12 @@ M =  X \%*\% t(a)+ matrix(rnorm(N*V),N,V)
 Y =  X + M \%*\% b + rnorm(N)
 sparse.mediation.old(X,M,Y,tol=10^(-10),max.iter=100,lambda = log(1+(1:25)/50))
 }
-\author{
-Seonjoo Lee, \email{sl3670@cumc.columbia.edu}
-}
 \references{
 TBA
+}
+\author{
+Seonjoo Lee, \email{sl3670@cumc.columbia.edu}
 }
 \keyword{glmnet}
 \keyword{highdimensional}
 \keyword{mediation}
-

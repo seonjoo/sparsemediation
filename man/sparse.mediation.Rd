@@ -5,7 +5,7 @@
 \title{Conduct sparse medication with elastic net}
 \usage{
 sparse.mediation(X, M, Y, tol = 10^(-10), max.iter = 100, lambda = log(1 +
-  (1:30)/100), alpha = (1:4)/4, tau = 1, figure = NULL)
+  (1:30)/100), alpha = (1:4)/4, tau = 1)
 }
 \arguments{
 \item{X}{One-dimensional predictor}
@@ -29,19 +29,21 @@ sparse.mediation(X, M, Y, tol = 10^(-10), max.iter = 100, lambda = log(1 +
 \item{glmnet.penalty.factor}{(default=c(0,rep(1,2*V))) give different weight of penalization for the 2V mediation paths.}
 }
 \value{
-c directeffect
+c: directeffect per each tuning parameter lambda. length(lambda)-dimensional vector
 
-hatb Path b (M->Y given X) estimates
+hatb: Path b (M->Y given X) estimates: V-by-lenbth(lambda)  matrix
 
-hata Path a (X->M) estimates
+hata: Path a (X->M) estimates: V-by-lenbth(lambda)  matrix
 
-medest Mediation estimates (a*b)
+medest: Mediation estimates (a*b): V-by-lenbth(lambda)  matrix
 
-alpha
+alpha: a scalor of the numing parameter for L2 regularization
 
-lambda
+lambda: a vector of tuning parameters for L1-penalization
 
-nump Number of selected mediation paths
+tau: weight used.
+
+nump: Number of selected mediation paths
 }
 \description{
 Fit a mediation model via penalized maximum likelihood and structural equation model.
@@ -62,15 +64,14 @@ a = rbinom(V,1,0.1)*5;b<-a
 X = rnorm(N)
 M =  X \%*\% t(a)+ matrix(rnorm(N*V),N,V)
 Y =  X + M \%*\% b + rnorm(N)
-sparse.mediation.tau(X,M,Y,tol=10^(-10),max.iter=100,lambda = log(1+(1:25)/50))
-}
-\author{
-Seonjoo Lee, \email{sl3670@cumc.columbia.edu}
+sparse.mediation(X,M,Y,tol=10^(-10),max.iter=100,lambda = log(1+(1:25)/50))
 }
 \references{
 TBA
 }
+\author{
+Seonjoo Lee, \email{sl3670@cumc.columbia.edu}
+}
 \keyword{glmnet}
 \keyword{highdimensional}
 \keyword{mediation}
-

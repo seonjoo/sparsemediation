@@ -43,12 +43,11 @@ M =  X \%*\% t(a)+ matrix(rnorm(N*V),N,V)
 Y =  X + M \%*\% b + rnorm(N)
 sparse.mediation.three(X,M,Y,tol=10^(-10),max.iter=100,lambda = log(1+(1:25)/50))
 }
-\author{
-Seonjoo Lee, \email{sl3670@cumc.columbia.edu}
-}
 \references{
 TBA
 }
+\author{
+Seonjoo Lee, \email{sl3670@cumc.columbia.edu}
+}
 \keyword{glmnet}
 \keyword{hdlfpca}
-

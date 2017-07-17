@@ -6,7 +6,7 @@
 \usage{
 cv.sparse.mediation(X, M, Y, tol = 10^(-10), K = 5, max.iter = 100,
   lambda = log(1 + (1:15)/50), alpha = (0:4)/4, tau = c(0.5, 1, 2),
-  figure = NULL, multicore = 1, seednum = 1e+06, display = TRUE)
+  figure = NULL, multicore = 1, seednum = 1e+06)
 }
 \arguments{
 \item{X}{One-dimensional predictor}
@@ -36,7 +36,23 @@ cv.sparse.mediation(X, M, Y, tol = 10^(-10), K = 5, max.iter = 100,
 \item{disply}{devault=FALSE}
 }
 \value{
-re list of sparse.mediation per each alpha
+cv.lambda: optimal lambda
+
+cv.tau: optimal tau
+
+cv.alpha: optimal tau
+
+cv.mse: minimum MSE value
+
+mse: Array of MSE, length(alpha) x length(lambda) x length (tau)
+
+lambda: vector of lambda
+
+tau: vector of tau used
+
+alpha: vector of alpha used
+
+z: cross-valication results
 }
 \description{
 Conduct K-fold cross validation for sparse medication with elastic net with multiple tuning parameters
@@ -57,12 +73,11 @@ nonzerolist = c(0,as.numeric(abs(c(fit[[1]]$hatb, fit[[1]]$hata))<0.0001))
 refit=sparse.mediation(X,M,Y,lambda = 100000,alpha=cvfit$cv.alpha, glmnet.penalty.factor=nonzerolist)
 cbind(a*b,refit$medest)
 }
-\author{
-Seonjoo Lee, \email{sl3670@cumc.columbia.edu}
-}
 \references{
 TBA
 }
+\author{
+Seonjoo Lee, \email{sl3670@cumc.columbia.edu}
+}
 \keyword{glmnet}
 \keyword{hdlfpca}
-

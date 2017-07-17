@@ -2,6 +2,7 @@
 
 export(cv.sparse.mediation)
 export(sparse.mediation)
+export(sparse.mediation.old)
 export(sparse.mediation.threeway)
 export(sparse.mediation.twoway)
 import(MASS)

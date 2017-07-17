@@ -6,7 +6,7 @@
 \usage{
 sparse.mediation.twoway(X, M, Y, tol = 10^(-10), max.iter = 100,
   lambda = log(1 + (1:30)/100), alpha = (1:4)/4,
-  glmnet.penalty.factor = c(0, rep(1, 2 * V)), figure = NULL)
+  glmnet.penalty.factor = c(0, rep(1, 2 * V)))
 }
 \arguments{
 \item{X}{One-dimensional predictor}

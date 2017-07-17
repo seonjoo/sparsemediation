@@ -25,8 +25,8 @@
 #' @export
 
 sparse.mediation.threeway = function(X,M,Y,tol=10^(-10),max.iter=100,
-                                   lambda = log(1+(1:30)/100),alpha=(1:4)/4,tau=c(0.5,1,2),
-                                   figure=NULL){
+                                   lambda = log(1+(1:30)/100),alpha=(1:4)/4,
+                                   tau=c(0.5,1,2)){
   library(parallel)
   library(MASS)
   library(glmnet)
@@ -35,7 +35,7 @@ sparse.mediation.threeway = function(X,M,Y,tol=10^(-10),max.iter=100,
   length.alpha=length(alpha)
   for (k in 1:length(tau)){
   for (j in 1:length(alpha)){
-    re[[(k-1)*length.alpha  + j]]=sparse.mediation(X,M,Y,tol=tol,max.iter=max.iter,lambda = lambda,alpha=alpha[j],figure=NULL,tau=tau[k])
+    re[[(k-1)*length.alpha  + j]]=sparse.mediation(X,M,Y,tol=tol,max.iter=max.iter,lambda = lambda,alpha=alpha[j],tau=tau[k])
 #    re[[(k-1)*length.alpha  + j]]$alpha=alpha[j]
 #    re[[(k-1)*length.alpha  + j]]$tau=tau[k]
   }

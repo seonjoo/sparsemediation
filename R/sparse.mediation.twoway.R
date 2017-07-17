@@ -26,14 +26,14 @@
 
 sparse.mediation.twoway = function(X,M,Y,tol=10^(-10),max.iter=100,
                                    lambda = log(1+(1:30)/100),alpha=(1:4)/4,
-                                   glmnet.penalty.factor=c(0,rep(1,2*V)),figure=NULL){
+                                   glmnet.penalty.factor=c(0,rep(1,2*V))){
   library(parallel)
   library(MASS)
   library(glmnet)
   re=new.env()
   re=as.list(re)
   for (j in 1:length(alpha)){
-    re[[j]]=sparse.mediation(X,M,Y,tol=tol,max.iter=max.iter,lambda = lambda,alpha=alpha[j],figure=NULL,display=FALSE,glmnet.penalty.factor=glmnet.penalty.factor)
+    re[[j]]=sparse.mediation(X,M,Y,tol=tol,max.iter=max.iter,lambda = lambda,alpha=alpha[j],glmnet.penalty.factor=glmnet.penalty.factor)
     re[[j]]$alpha=alpha[j]
   }
   return(re)

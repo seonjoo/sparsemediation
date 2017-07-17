@@ -48,7 +48,7 @@
 
 cv.sparse.mediation= function(X,M,Y,tol=10^(-10),K=5,max.iter=100,
                               lambda = log(1+(1:15)/50),alpha=(0:4)/4,tau=c(0.5,1,2),
-                              figure=NULL,multicore=1,seednum=1000000){
+                              multicore=1,seednum=1000000){
   library(parallel)
   library(MASS)
   library(glmnet)

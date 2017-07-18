@@ -21,6 +21,6 @@ X = scale(rnorm(N))
 M =  X %*% t(a)+ matrix(rnorm(N*V),N,V)
 Y =  10*X + M %*% b + rnorm(N)
 
-cvfit<-cv.sparse.mediation(X, M, Y, tol = 10^(-10), K = 4, max.iter = 100,lambda = log(1 + (1:10)/25), alpha = (1:4)/4, figure = NULL, multicore = 4, seednum = 1e+06, display = TRUE)
+cvfit<-cv.sparse.mediation(X, M, Y, tol = 10^(-10), K = 4, max.iter = 100,lambda = log(1 + (1:10)/25), alpha = (1:4)/4,  multicore = 4, seednum = 1e+06)
 
 fit<-sparse.mediation(X,M,Y,tol=10^(-10),max.iter=100,lambda = cvfit$cv.lambda, alpha=cvfit$cv.alpha)

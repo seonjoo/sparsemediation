@@ -35,7 +35,7 @@
 #' cvfit$cv.tau
 #' fit<-sparse.mediation(X,M,Y,tol=10^(-10),max.iter=100,lambda = cvfit$cv.lambda, alpha=cvfit$cv.alpha,tau=cvfit$cv.tau)
 #' nonzerolist = c(0,as.numeric(abs(c(fit[[1]]$hatb, fit[[1]]$hata))<0.0001))
-#' refit=sparse.mediation(X,M,Y,lambda = 100000,alpha=cvfit$cv.alpha, glmnet.penalty.factor=nonzerolist)
+#' refit=sparse.mediation.old(X,M,Y,lambda = 100000,alpha=cvfit$cv.alpha, glmnet.penalty.factor=nonzerolist)
 #' cbind(a*b,refit$medest)
 #' @author Seonjoo Lee, \email{sl3670@cumc.columbia.edu}
 #' @references TBA

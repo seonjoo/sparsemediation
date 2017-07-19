@@ -42,9 +42,8 @@
 #' @export
 sparse.mediation.old = function(X,M,Y,tol=10^(-10),max.iter=100,lambda = log(1+(1:50)/125),
                             glmnet.penalty.factor=c(0,rep(1,2*V)),alpha=1){
-  #library(parallel)
-  #library(MASS)
-  #library(glmnet)
+
+
   ## Center all values, and also make their scales to be 1. In this context, all coefficients will be dexribed in terms of correlation or partial correlations.
   N = nrow(M)
   V = ncol(M)
@@ -134,3 +133,6 @@ sparse.mediation.old = function(X,M,Y,tol=10^(-10),max.iter=100,lambda = log(1+(
     nump=nump
   ))
 }
+
+
+

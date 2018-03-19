@@ -41,7 +41,7 @@
 #' @import glmnet
 #' @export
 sparse.mediation.old = function(X,M,Y,tol=10^(-10),max.iter=100,lambda = log(1+(1:50)/125),
-                            glmnet.penalty.factor=c(0,rep(1,2*V)),alpha=1){
+                            glmnet.penalty.factor=c(0,rep(1,2*V)),alpha=1,threshold=0.00001){
 
 
   ## Center all values, and also make their scales to be 1. In this context, all coefficients will be dexribed in terms of correlation or partial correlations.
@@ -109,8 +109,9 @@ sparse.mediation.old = function(X,M,Y,tol=10^(-10),max.iter=100,lambda = log(1+(
 
         beta_new = as.vector(predict(fit,type="coef"))[-1]
       ## use thresholds as well: since all variables are standardized, coefficients less than 0.001 does not have any meaning.
-        beta_new[abs(beta_new)<0.001]<-0
-
+        if (threshold>0){
+        beta_new[abs(beta_new)<threshold]<-0
+        }
       #beta_new[(1:V) +1]*beta_new[(1:V) +V+1]
         gamma_new = beta_new[1:(V+1)]
         alpha_new = beta_new[(1:V)+ V+1]

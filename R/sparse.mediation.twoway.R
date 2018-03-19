@@ -1,4 +1,4 @@
-#' Conduct sparse medication with elastic net with multiple tuning parameters
+#' Conduct sparse mediation with elastic net with multiple tuning parameters
 #'
 #' @param X One-dimensional predictor
 #' @param M Multivariate mediator

@@ -1,4 +1,4 @@
-#' Conduct sparse medication with elastic net
+#' Conduct sparse mediation with elastic net
 #'
 #' Fit a mediation model via penalized maximum likelihood and structural equation model.
 #' The regularization path is computed for the lasso or elasticnet penalty at a grid of

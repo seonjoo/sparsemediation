@@ -1,4 +1,4 @@
-#' Conduct K-fold cross validation for sparse medication with elastic net with multiple tuning parameters
+#' Conduct K-fold cross validation for sparse mediation with elastic net with multiple tuning parameters
 #'
 #' @param X One-dimensional predictor
 #' @param M Multivariate mediator

@@ -1,4 +1,4 @@
-#' Conduct sparse medication with elastic net (Old version)
+#' Conduct sparse mediation with elastic net (Old version)
 #'
 #' Fit a mediation model via penalized maximum likelihood and structural equation model.
 #' The regularization path is computed for the lasso or elasticnet penalty at a grid of
@@ -73,7 +73,7 @@ sparse.mediation.old = function(X,M,Y,tol=10^(-10),max.iter=100,lambda = log(1+(
 
   betaest =  matrix(0,1+2*V,length(lambda))
   for (j in 1:length(lambda)){
-    #print(paste("Lambda",lambda[j]))
+    print(paste("Lambda",lambda[j]))
     gamma_old = gamma_new = invtUU %*% tUY
     sigma1 = mean((Y - U %*% gamma_old)^2)
     alpha_old = alpha_new = t(solve(t(X)%*%X)%*%t(X)%*%M)
@@ -90,31 +90,35 @@ sparse.mediation.old = function(X,M,Y,tol=10^(-10),max.iter=100,lambda = log(1+(
       A = matrix(0,1+2*V,1+2*V)
       A[1:(1+V),1:(1+V)]=1/sigma1 * tUU
       A[(1+V)+ 1:V,(1+V)+ 1:V]=as.numeric(tXX) * ginv(Sigma2)
+      tmp<-NA
+      try(tmp<-svd(A)) ## if this fails, we stop the iteration
+      if (is.na(tmp)[1]==TRUE){
+        break;print(paste(j,'iteration',iter,'SVD has ERROR'))
+      }else{
+        sqmatA = tmp$u %*% diag(sqrt(tmp$d)) %*% t(tmp$v)
+        C = solve(sqmatA) %*% rbind(tUY/sigma1, ginv(Sigma2)%*%tMX)
 
-      tmp=svd(A)
-      sqmatA = tmp$u %*% diag(sqrt(tmp$d)) %*% t(tmp$v)
-      C = solve(sqmatA) %*% rbind(tUY/sigma1, ginv(Sigma2)%*%tMX)
+        if(is.null(glmnet.penalty.factor)==TRUE){
+          fit = glmnet(sqmatA, C,lambda=lambda[j],alpha=alpha)
+        }else{
+          fit = glmnet(sqmatA, C,lambda=lambda[j],penalty.factor=glmnet.penalty.factor,alpha=alpha)
+        }
 
-
-      if(is.null(glmnet.penalty.factor)==TRUE){
-        fit = glmnet(sqmatA, C,lambda=lambda[j],alpha=alpha)
-      }else{ fit = glmnet(sqmatA, C,lambda=lambda[j],penalty.factor=glmnet.penalty.factor,alpha=alpha)
-      }
-
-      beta_new = as.vector(predict(fit,type="coef"))[-1]
+        beta_new = as.vector(predict(fit,type="coef"))[-1]
       ## use thresholds as well: since all variables are standardized, coefficients less than 0.001 does not have any meaning.
-      beta_new[abs(beta_new)<0.001]<-0
+        beta_new[abs(beta_new)<0.001]<-0
 
       #beta_new[(1:V) +1]*beta_new[(1:V) +V+1]
-      gamma_new = beta_new[1:(V+1)]
-      alpha_new = beta_new[(1:V)+ V+1]
-      sigma1 = mean((Y - U %*% gamma_new)^2)
-      tmp = M - matrix(X,N,1) %*% matrix(alpha_new,1,V)
-      Sigma2 = t(tmp)%*%tmp/N
+        gamma_new = beta_new[1:(V+1)]
+        alpha_new = beta_new[(1:V)+ V+1]
+        sigma1 = mean((Y - U %*% gamma_new)^2)
+        tmp = M - matrix(X,N,1) %*% matrix(alpha_new,1,V)
+        Sigma2 = t(tmp)%*%tmp/N
 
 
-      err = sum((beta_old-beta_new)^2)
-      iter=iter+1
+        err = sum((beta_old-beta_new)^2)
+        iter=iter+1
+      }
     }
     betaest[,j]=beta_new
   }

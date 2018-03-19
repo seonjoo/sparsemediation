@@ -74,29 +74,32 @@ sparse.mediation.old = function(X,M,Y,tol=10^(-10),max.iter=100,lambda = log(1+(
   betaest =  matrix(0,1+2*V,length(lambda))
   for (j in 1:length(lambda)){
     print(paste("Lambda",lambda[j]))
-    gamma_old = gamma_new = invtUU %*% tUY
-    sigma1 = mean((Y - U %*% gamma_old)^2)
-    alpha_old = alpha_new = t(solve(t(X)%*%X)%*%t(X)%*%M)
-    beta_old = beta_new = c(gamma_old,alpha_old)
-    tmp = M - matrix(X,N,1) %*% matrix(alpha_old,1,V)
-    Sigma2 = t(tmp)%*%tmp/N
-
+    gamma_new = invtUU %*% tUY
+    alpha_new = t(solve(t(X)%*%X)%*%t(X)%*%M)
+    beta_new = c(gamma_old,alpha_old)
+ 
     iter=0
     err=1000
     while( err>tol & iter<max.iter){
       beta_old = beta_new
       alpha_old=alpha_new
       gamma_old = gamma_new
+      
+      sigma1 = mean((Y - U %*% gamma_old)^2)
+      tmp = M - matrix(X,N,1) %*% matrix(alpha_old,1,V)
+      Sigma2 = t(tmp)%*%tmp/N
+      Sigma2.inv=ginv(Sigma2)
+      
       A = matrix(0,1+2*V,1+2*V)
       A[1:(1+V),1:(1+V)]=1/sigma1 * tUU
-      A[(1+V)+ 1:V,(1+V)+ 1:V]=as.numeric(tXX) * ginv(Sigma2)
+      A[(1+V)+ 1:V,(1+V)+ 1:V]=as.numeric(tXX) * Sigma2.inv
       tmp<-NA
       try(tmp<-svd(A)) ## if this fails, we stop the iteration
       if (is.na(tmp)[1]==TRUE){
-        break;print(paste(j,'iteration',iter,'SVD has ERROR'))
+        print(paste(j,'iteration',iter,'SVD has ERROR'));break
       }else{
         sqmatA = tmp$u %*% diag(sqrt(tmp$d)) %*% t(tmp$v)
-        C = solve(sqmatA) %*% rbind(tUY/sigma1, ginv(Sigma2)%*%tMX)
+        C = solve(sqmatA) %*% rbind(tUY/sigma1, Sigma2.inv%*%tMX)
 
         if(is.null(glmnet.penalty.factor)==TRUE){
           fit = glmnet(sqmatA, C,lambda=lambda[j],alpha=alpha)
@@ -111,11 +114,6 @@ sparse.mediation.old = function(X,M,Y,tol=10^(-10),max.iter=100,lambda = log(1+(
       #beta_new[(1:V) +1]*beta_new[(1:V) +V+1]
         gamma_new = beta_new[1:(V+1)]
         alpha_new = beta_new[(1:V)+ V+1]
-        sigma1 = mean((Y - U %*% gamma_new)^2)
-        tmp = M - matrix(X,N,1) %*% matrix(alpha_new,1,V)
-        Sigma2 = t(tmp)%*%tmp/N
-
-
         err = sum((beta_old-beta_new)^2)
         iter=iter+1
       }

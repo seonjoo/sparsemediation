@@ -76,20 +76,20 @@ sparse.mediation.old = function(X,M,Y,tol=10^(-10),max.iter=100,lambda = log(1+(
     print(paste("Lambda",lambda[j]))
     gamma_new = invtUU %*% tUY
     alpha_new = t(solve(t(X)%*%X)%*%t(X)%*%M)
-    beta_new = c(gamma_old,alpha_old)
- 
+
     iter=0
     err=1000
     while( err>tol & iter<max.iter){
-      beta_old = beta_new
+
       alpha_old=alpha_new
       gamma_old = gamma_new
-      
+      beta_old = c(gamma_old,alpha_old)
+
       sigma1 = mean((Y - U %*% gamma_old)^2)
       tmp = M - matrix(X,N,1) %*% matrix(alpha_old,1,V)
       Sigma2 = t(tmp)%*%tmp/N
       Sigma2.inv=ginv(Sigma2)
-      
+
       A = matrix(0,1+2*V,1+2*V)
       A[1:(1+V),1:(1+V)]=1/sigma1 * tUU
       A[(1+V)+ 1:V,(1+V)+ 1:V]=as.numeric(tXX) * Sigma2.inv

@@ -41,7 +41,7 @@
 #' @import glmnet
 #' @export
 sparse.mediation.old = function(X,M,Y,tol=10^(-10),max.iter=100,lambda = log(1+(1:50)/125),
-                            glmnet.penalty.factor=c(0,rep(1,2*V)),alpha=1,threshold=0.00001){
+                                glmnet.penalty.factor=c(0,rep(1,2*V)),alpha=1,threshold=0.00001){
 
 
   ## Center all values, and also make their scales to be 1. In this context, all coefficients will be dexribed in terms of correlation or partial correlations.
@@ -63,6 +63,7 @@ sparse.mediation.old = function(X,M,Y,tol=10^(-10),max.iter=100,lambda = log(1+(
   ## OLS Estimation ###
   U = cbind(X,M)
   tUU = t(U)%*%U
+  tUU.sqmat=sqrtmat.comp(tUU)
   invtUU = ginv(tUU)
   invtMM = ginv(t(M)%*%M)
   tXX = t(X)%*%X
@@ -75,7 +76,7 @@ sparse.mediation.old = function(X,M,Y,tol=10^(-10),max.iter=100,lambda = log(1+(
   for (j in 1:length(lambda)){
     print(paste("Lambda",lambda[j]))
     gamma_new = invtUU %*% tUY
-    alpha_new = t(solve(t(X)%*%X)%*%t(X)%*%M)
+    alpha_new = t(ginv(t(X)%*%X)%*%t(X)%*%M)
 
     iter=0
     err=1000
@@ -88,36 +89,35 @@ sparse.mediation.old = function(X,M,Y,tol=10^(-10),max.iter=100,lambda = log(1+(
       sigma1 = mean((Y - U %*% gamma_old)^2)
       tmp = M - matrix(X,N,1) %*% matrix(alpha_old,1,V)
       Sigma2 = t(tmp)%*%tmp/N
+      Sigma2.sqmat=sqrtmat.comp(Sigma2)
+      Sigma2.sqrt.inv=ginv(Sigma2.sqmat)
       Sigma2.inv=ginv(Sigma2)
 
       A = matrix(0,1+2*V,1+2*V)
       A[1:(1+V),1:(1+V)]=1/sigma1 * tUU
-      A[(1+V)+ 1:V,(1+V)+ 1:V]=as.numeric(tXX) * Sigma2.inv
-      tmp<-NA
-      try(tmp<-svd(A)) ## if this fails, we stop the iteration
-      if (is.na(tmp)[1]==TRUE){
-        print(paste(j,'iteration',iter,'SVD has ERROR'));break
+      A[(1+V)+ 1:V,(1+V)+ 1:V]=  as.numeric(tXX) * Sigma2.inv
+
+      sqmatA = A;sqmatA[1:(1+V),1:(1+V)]=1/sqrt(sigma1) * tUU.sqmat
+      sqmatA[(1+V)+ 1:V,(1+V)+ 1:V]=  sqrt(as.numeric(tXX)) * Sigma2.sqrt.inv
+      C = ginv(sqmatA) %*% rbind(tUY/sigma1, Sigma2.inv%*%tMX)
+
+      if(is.null(glmnet.penalty.factor)==TRUE){
+        fit = glmnet(sqmatA, C,lambda=lambda[j],alpha=alpha)
       }else{
-        sqmatA = tmp$u %*% diag(sqrt(tmp$d)) %*% t(tmp$v)
-        C = solve(sqmatA) %*% rbind(tUY/sigma1, Sigma2.inv%*%tMX)
-
-        if(is.null(glmnet.penalty.factor)==TRUE){
-          fit = glmnet(sqmatA, C,lambda=lambda[j],alpha=alpha)
-        }else{
-          fit = glmnet(sqmatA, C,lambda=lambda[j],penalty.factor=glmnet.penalty.factor,alpha=alpha)
-        }
-
-        beta_new = as.vector(predict(fit,type="coef"))[-1]
-      ## use thresholds as well: since all variables are standardized, coefficients less than 0.001 does not have any meaning.
-        if (threshold>0){
-        beta_new[abs(beta_new)<threshold]<-0
-        }
-      #beta_new[(1:V) +1]*beta_new[(1:V) +V+1]
-        gamma_new = beta_new[1:(V+1)]
-        alpha_new = beta_new[(1:V)+ V+1]
-        err = sum((beta_old-beta_new)^2)
-        iter=iter+1
+        fit = glmnet(sqmatA, C,lambda=lambda[j],penalty.factor=glmnet.penalty.factor,alpha=alpha)
       }
+
+      beta_new = as.vector(predict(fit,type="coef"))[-1]
+      ## use thresholds as well: since all variables are standardized, coefficients less than 0.001 does not have any meaning.
+      if (threshold>0){
+        beta_new[abs(beta_new)<threshold]<-0
+      }
+      #beta_new[(1:V) +1]*beta_new[(1:V) +V+1]
+      gamma_new = beta_new[1:(V+1)]
+      alpha_new = beta_new[(1:V)+ V+1]
+      err = sum((beta_old[-1]-beta_new[-1])^2)
+      iter=iter+1
+      print(c(iter, err))
     }
     betaest[,j]=beta_new
   }
@@ -137,5 +137,12 @@ sparse.mediation.old = function(X,M,Y,tol=10^(-10),max.iter=100,lambda = log(1+(
   ))
 }
 
+
+sqrtmat.comp<-function(mat,thresh=10^{-20}){
+  eigenmat=eigen(mat)
+  ncomp=sum(eigenmat$values>thresh)
+  sqmat=eigenmat$vectors[,1:ncomp] %*% diag(sqrt(eigenmat$values[1:ncomp])) %*% t(eigenmat$vectors[,1:ncomp])
+  return(sqmat)
+}
 
 

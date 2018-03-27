@@ -11,7 +11,7 @@
 #' @param X One-dimensional predictor
 #' @param M Multivariate mediator
 #' @param Y Outcome
-#' @param tol (default -10^(-10)) convergence criterion
+#' @param tol (default -10^(-5)) convergence criterion
 #' @param max.iter (default=100) maximum iteration
 #' @param lambda (default=log(1+(1:50)/125)) tuning parameter for L1 penalization
 #' @param alpha (default=1) tuning parameter for L2 penalization
@@ -43,8 +43,8 @@
 #' @import glmnet
 #' @export
 
-sparse.mediation = function(X,M,Y,tol=10^(-10),max.iter=100,
-                                   lambda = log(1+(1:30)/100),alpha=(1:4)/4,tau=1){
+sparse.mediation = function(X,M,Y,tol=10^(-5),max.iter=50,
+                                   lambda = log(1+(1:30)/100),alpha=1,tau=1){
 #  library(parallel)
 #  library(MASS)
 #  library(glmnet)
@@ -55,7 +55,10 @@ sparse.mediation = function(X,M,Y,tol=10^(-10),max.iter=100,
   V = ncol(M)
   weights = c(0,rep(1,V), tau*rep(1,V))
   for (j in 1:length(alpha)){
+    if(N > V){
     re[[j]]=sparse.mediation.old(X,M,Y,tol=tol,max.iter=max.iter,lambda = lambda,alpha=alpha[j],glmnet.penalty.factor=weights)
+    }else{re[[j]]=sparse.mediation.largep(X,M,Y,tol=tol,max.iter=max.iter,lambda = lambda,alpha=alpha[j],glmnet.penalty.factor=weights)}
+
     re[[j]]$alpha=alpha[j]
     re[[j]]$tau=tau
   }

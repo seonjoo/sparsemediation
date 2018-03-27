@@ -65,7 +65,7 @@ sparse.mediation.old = function(X,M,Y,tol=10^(-10),max.iter=100,lambda = log(1+(
   tUU = t(U)%*%U
   tUU.sqmat=sqrtmat.comp(tUU)
   invtUU = ginv(tUU)
-  invtMM = ginv(t(M)%*%M)
+  #invtMM = ginv(t(M)%*%M)
   tXX = t(X)%*%X
   tUY = t(U)%*%Y
   tMX = t(M)%*%X
@@ -136,13 +136,4 @@ sparse.mediation.old = function(X,M,Y,tol=10^(-10),max.iter=100,lambda = log(1+(
     nump=nump
   ))
 }
-
-
-sqrtmat.comp<-function(mat,thresh=10^{-20}){
-  eigenmat=eigen(mat)
-  ncomp=sum(eigenmat$values>thresh)
-  sqmat=eigenmat$vectors[,1:ncomp] %*% diag(sqrt(eigenmat$values[1:ncomp])) %*% t(eigenmat$vectors[,1:ncomp])
-  return(sqmat)
-}
-
 

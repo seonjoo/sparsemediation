@@ -30,33 +30,3 @@ sqrtmat.comp<-function(mat,thresh=10^(-20)){
 
   return(sqmat)
 }
-
-ginv.largep<-function(x.c,sqrtmat=TRUE, sqrtinvmat=TRUE){
-  #n=nrow(x)
-  #x.c=scale(x, center=TRUE, scale=FALSE)
-  xxt.inv= ginv( x.c %*% t(x.c))
-  tmp = xxt.inv %*% x.c
-  sqrt.mat=sqrt.invmat=NULL
-  if (sqrtinvmat==TRUE){
-    sqrt.mat=t(sqrtmat.comp(xxt.inv) %*% x.c) %*% x.c
-  }
-  if (sqrtinvmat==TRUE){
-    sqrt.invmat=t(sqrtmat.comp(xxt.inv) %*% x.c) %*% xxt.inv %*% x.c
-  }
-  return(list(inv=t(tmp) %*% tmp, sqrtinv=sqrt.invmat, sqrtmat=sqrt.mat))
-}
-
-ginv.largep0<-function(x,sqrtmat=TRUE, sqrtinvmat=TRUE){
-  n=nrow(x)
-  x.c=scale(x, center=TRUE, scale=FALSE)
-  xxt.inv= ginv( x.c %*% t(x.c)/(n-1))
-  tmp = xxt.inv %*% x.c/(sqrt(n-1))
-  sqrt.mat=sqrt.invmat=NULL
-  if (sqrtinvmat==TRUE){
-    sqrt.mat=t(sqrtmat.comp(xxt.inv) %*% x.c/(sqrt(n-1))) %*% x.c/sqrt(n-1)
-  }
-  if (sqrtinvmat==TRUE){
-    sqrt.invmat=t(sqrtmat.comp(xxt.inv) %*% x.c/(sqrt(n-1))) %*% xxt.inv %*% x.c/sqrt(n-1)
-  }
-  return(list(inv=t(tmp) %*% tmp, sqrtinv=sqrt.invmat, sqrtmat=sqrt.mat))
-}

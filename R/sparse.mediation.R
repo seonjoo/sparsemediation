@@ -53,6 +53,7 @@ sparse.mediation = function(X,M,Y,tol=10^(-5),max.iter=50,
   re=new.env()
   re=as.list(re)
   V = ncol(M)
+  N=nrow(M)
   weights = c(0,rep(1,V), tau*rep(1,V))
   for (j in 1:length(alpha)){
     if(N > V){

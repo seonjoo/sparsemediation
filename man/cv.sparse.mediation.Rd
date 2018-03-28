@@ -2,7 +2,7 @@
 % Please edit documentation in R/cv.sparse.mediation.R
 \name{cv.sparse.mediation}
 \alias{cv.sparse.mediation}
-\title{Conduct K-fold cross validation for sparse medication with elastic net with multiple tuning parameters}
+\title{Conduct K-fold cross validation for sparse mediation with elastic net with multiple tuning parameters}
 \usage{
 cv.sparse.mediation(X, M, Y, tol = 10^(-10), K = 5, max.iter = 100,
   lambda = log(1 + (1:15)/50), alpha = (0:4)/4, tau = c(0.5, 1, 2),
@@ -55,7 +55,7 @@ alpha: vector of alpha used
 z: cross-valication results
 }
 \description{
-Conduct K-fold cross validation for sparse medication with elastic net with multiple tuning parameters
+Conduct K-fold cross validation for sparse mediation with elastic net with multiple tuning parameters
 }
 \examples{
 N=200

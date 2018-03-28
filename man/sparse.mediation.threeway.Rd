@@ -2,7 +2,7 @@
 % Please edit documentation in R/sparse.mediation.threeway.R
 \name{sparse.mediation.threeway}
 \alias{sparse.mediation.threeway}
-\title{Conduct sparse medication with elastic net with multiple tuning parameters}
+\title{Conduct sparse mediation with elastic net with multiple tuning parameters}
 \usage{
 sparse.mediation.threeway(X, M, Y, tol = 10^(-10), max.iter = 100,
   lambda = log(1 + (1:30)/100), alpha = (1:4)/4, tau = c(0.5, 1, 2))
@@ -30,7 +30,7 @@ sparse.mediation.threeway(X, M, Y, tol = 10^(-10), max.iter = 100,
 re list of sparse.mediation per each alpha
 }
 \description{
-Conduct sparse medication with elastic net with multiple tuning parameters
+Conduct sparse mediation with elastic net with multiple tuning parameters
 }
 \examples{
 N=100

@@ -2,10 +2,10 @@
 % Please edit documentation in R/sparse.mediation.R
 \name{sparse.mediation}
 \alias{sparse.mediation}
-\title{Conduct sparse medication with elastic net}
+\title{Conduct sparse mediation with elastic net}
 \usage{
-sparse.mediation(X, M, Y, tol = 10^(-10), max.iter = 100, lambda = log(1 +
-  (1:30)/100), alpha = (1:4)/4, tau = 1)
+sparse.mediation(X, M, Y, tol = 10^(-5), max.iter = 50, lambda = log(1 +
+  (1:30)/100), alpha = 1, tau = 1)
 }
 \arguments{
 \item{X}{One-dimensional predictor}
@@ -14,7 +14,7 @@ sparse.mediation(X, M, Y, tol = 10^(-10), max.iter = 100, lambda = log(1 +
 
 \item{Y}{Outcome}
 
-\item{tol}{(default -10^(-10)) convergence criterion}
+\item{tol}{(default -10^(-5)) convergence criterion}
 
 \item{max.iter}{(default=100) maximum iteration}
 

@@ -84,8 +84,8 @@ sparse.mediation.largep = function(X,M,Y,tol=10^(-10),max.iter=10,lambda = log(1
 
   for (j in 1:length(lambda)){
     if(verbose==TRUE){print(paste("Lambda",lambda[j]))}
-    gamma_new = tUU$inv %*% tUY
-    alpha_new = t(ginv(tXX)%*%t(X)%*%M)
+    gamma_new = rep(0,V+1)#tUU$inv %*% tUY
+    alpha_new = rep(0,V)#t(ginv(tXX)%*%t(X)%*%M)
 
     iter=0
     err=1000

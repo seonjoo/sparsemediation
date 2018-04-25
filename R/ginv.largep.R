@@ -1,4 +1,5 @@
 #' Compute inverse, squareroot and inverse of the square root of the covariance
+#'
 #' @param mat One-dimensional predictor
 #' @param threshold
 #' @return squareroot of matrix

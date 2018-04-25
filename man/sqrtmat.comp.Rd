@@ -2,18 +2,20 @@
 % Please edit documentation in R/sqrtmat.comp.R
 \name{sqrtmat.comp}
 \alias{sqrtmat.comp}
-\title{Compute squareroot matrix}
+\title{Compute squareroot of large covariance matrix}
 \usage{
-sqrtmat.comp(mat, thresh = 10^(-20))
+sqrtmat.comp(mat, thresh = 10^(-20), K = NULL)
 }
 \arguments{
-\item{mat}{One-dimensional predictor}
+\item{mat}{Covariance matrix}
+
+\item{K}{Dimension of the matrix. Default is set as ncol(mat)-1}
 }
 \value{
 squareroot of matrix
 }
 \description{
-Compute squareroot matrix
+Compute squareroot of large covariance matrix
 }
 \examples{
 set.seed(1234)
@@ -28,6 +30,4 @@ TBA
 \author{
 Seonjoo Lee, \email{sl3670@cumc.columbia.edu}
 }
-\keyword{L1penalization}
-\keyword{highdimensional}
-\keyword{mediation}
+\keyword{squareroot}

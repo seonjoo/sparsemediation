@@ -1,6 +1,8 @@
-#' Compute squareroot matrix
-#' @param mat One-dimensional predictor
+#' Compute squareroot of large covariance matrix
+#'
+#' @param mat Covariance matrix
 #' @param threshold
+#' @param K Dimension of the matrix. Default is set as ncol(mat)-1
 #' @return squareroot of matrix
 #' @examples
 #' set.seed(1234)
@@ -10,14 +12,18 @@
 #'
 #' @author Seonjoo Lee, \email{sl3670@cumc.columbia.edu}
 #' @references TBA
-#' @keywords highdimensional mediation L1penalization
+#' @keywords squareroot
 #' @import parallel
 #' @import MASS
 #' @import glmnet
+#' @import rsvd
 #' @export
 
-sqrtmat.comp<-function(mat,thresh=10^(-20)){
-  eigenmat=svd(mat)
+sqrtmat.comp<-function(mat,thresh=10^(-20),K=NULL){
+  if(is.null(K)){K=ncol(mat)-1}
+  if (ncol(mat)>200){
+    eigenmat=rsvd(mat, k=K)
+  }else{eigenmat=svd(mat, nv=K, nu=K)}
   #  print(paste('Dimension of mat:', dim(mat)))
   ncomp=sum(eigenmat$d>thresh)
   #print(ncomp)

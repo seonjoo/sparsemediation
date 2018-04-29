@@ -20,7 +20,7 @@
 #' @export
 
 sqrtmat.comp<-function(mat,thresh=10^(-20),K=NULL){
-  if(is.null(K)){K=ncol(mat)-1}
+  if(is.null(K)){K=ncol(mat)}
   if (ncol(mat)>200){
     eigenmat=rsvd(mat, k=K)
   }else{eigenmat=svd(mat, nv=K, nu=K)}

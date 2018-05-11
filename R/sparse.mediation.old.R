@@ -74,7 +74,7 @@ sparse.mediation.old = function(X,M,Y,tol=10^(-10),max.iter=100,lambda = log(1+(
 
   betaest =  matrix(0,1+2*V,length(lambda))
   for (j in 1:length(lambda)){
-    print(paste("Lambda",lambda[j]))
+    if (verbose==TRUE){print(paste("Lambda",lambda[j]))}
     gamma_new = invtUU %*% tUY
     alpha_new = t(ginv(t(X)%*%X)%*%t(X)%*%M)
 

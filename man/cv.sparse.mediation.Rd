@@ -5,8 +5,8 @@
 \title{Conduct K-fold cross validation for sparse mediation with elastic net with multiple tuning parameters}
 \usage{
 cv.sparse.mediation(X, M, Y, tol = 10^(-10), K = 5, max.iter = 100,
-  lambda = log(1 + (1:15)/50), alpha = (0:4)/4, tau = c(0.5, 1, 2),
-  multicore = 1, seednum = 1e+06)
+  lambda = log(1 + (1:15)/50), lambda2 = c(0.2, 0.5), alpha = 1,
+  tau = c(0.5, 1, 2), multicore = 1, seednum = 1e+06)
 }
 \arguments{
 \item{X}{One-dimensional predictor}
@@ -23,17 +23,17 @@ cv.sparse.mediation(X, M, Y, tol = 10^(-10), K = 5, max.iter = 100,
 
 \item{lambda}{(default=log(1+(1:30)/100)) tuning parameter for L1 penalization}
 
-\item{alpha}{(defult=c(1:4)/4) tuning parameter for L2 penalization}
+\item{lambda2}{(default=c(0.2,0.5)) tuning parameter for inverse covariance matrix sparsity. Only used if n>(2*V).}
+
+\item{alpha}{(defult=1) tuning parameter for L2 penalization}
+
+\item{tau}{(default=1) tuning parameter for differential weight for L1 penalty.}
 
 \item{multicore}{(default=1) number of multicore}
 
 \item{seednum}{(default=10000) seed number for cross validation}
 
-\item{figure}{(defult=NULL) print figures for mean predictive errors by tuning parameters alpha and lambda}
-
 \item{glmnet.penalty.factor}{(default=c(0,rep(1,2*V))) give different weight of penalization for the 2V mediation paths.}
-
-\item{disply}{devault=FALSE}
 }
 \value{
 cv.lambda: optimal lambda
@@ -65,7 +65,7 @@ a = rbinom(V,1,0.1)*5;b<-a
 X = rnorm(N)
 M =  X \%*\% t(a)+ matrix(rnorm(N*V),N,V)
 Y =  as.vector(X + M \%*\% b + rnorm(N))
-system.time(cvfit<-cv.sparse.mediation(X, M, Y, tol = 10^(-10), K = 8, max.iter = 100,lambda = log(1 + (1:10)/25), alpha = 1, tau=c(0.25,0.5,1,2,4,8),multicore = 8, seednum = 1e+06))
+system.time(cvfit<-cv.sparse.mediation(X, M, Y, tol = 10^(-10), K = 4, max.iter = 100,lambda = log(1 + (1:10)/25), alpha = 1, tau=c(0.25,0.5,1,2,4,8),multicore = 4, seednum = 1e+06))
 cvfit$cv.lambda
 cvfit$cv.tau
 fit<-sparse.mediation(X,M,Y,tol=10^(-10),max.iter=100,lambda = cvfit$cv.lambda, alpha=cvfit$cv.alpha,tau=cvfit$cv.tau)

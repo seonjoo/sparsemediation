@@ -7,12 +7,12 @@
 #' @param tol (default -10^(-10)) convergence criterion
 #' @param max.iter (default=100) maximum iteration
 #' @param lambda (default=log(1+(1:30)/100)) tuning parameter for L1 penalization
-#' @param alpha (defult=c(1:4)/4) tuning parameter for L2 penalization
-#' @param figure (defult=NULL) print figures for mean predictive errors by tuning parameters alpha and lambda
+#' @param lambda2 (default=c(0.2,0.5)) tuning parameter for inverse covariance matrix sparsity. Only used if n>(2*V).
+#' @param alpha (defult=1) tuning parameter for L2 penalization
+#' @param tau (default=1) tuning parameter for differential weight for L1 penalty.
 #' @param glmnet.penalty.factor (default=c(0,rep(1,2*V))) give different weight of penalization for the 2V mediation paths.
 #' @param multicore (default=1) number of multicore
 #' @param seednum (default=10000) seed number for cross validation
-#' @param disply devault=FALSE
 #' @return cv.lambda: optimal lambda
 #' @return cv.tau: optimal tau
 #' @return cv.alpha: optimal tau
@@ -30,7 +30,7 @@
 #' X = rnorm(N)
 #' M =  X %*% t(a)+ matrix(rnorm(N*V),N,V)
 #' Y =  as.vector(X + M %*% b + rnorm(N))
-#' system.time(cvfit<-cv.sparse.mediation(X, M, Y, tol = 10^(-10), K = 8, max.iter = 100,lambda = log(1 + (1:10)/25), alpha = 1, tau=c(0.25,0.5,1,2,4,8),multicore = 8, seednum = 1e+06))
+#' system.time(cvfit<-cv.sparse.mediation(X, M, Y, tol = 10^(-10), K = 4, max.iter = 100,lambda = log(1 + (1:10)/25), alpha = 1, tau=c(0.25,0.5,1,2,4,8),multicore = 4, seednum = 1e+06))
 #' cvfit$cv.lambda
 #' cvfit$cv.tau
 #' fit<-sparse.mediation(X,M,Y,tol=10^(-10),max.iter=100,lambda = cvfit$cv.lambda, alpha=cvfit$cv.alpha,tau=cvfit$cv.tau)
@@ -47,7 +47,9 @@
 
 
 cv.sparse.mediation= function(X,M,Y,tol=10^(-10),K=5,max.iter=100,
-                              lambda = log(1+(1:15)/50),alpha=(0:4)/4,tau=c(0.5,1,2),
+                              lambda = log(1+(1:15)/50),
+                              lambda2 = c(0.2,0.5),
+                              alpha=1,tau=c(0.5,1,2),
                               multicore=1,seednum=1000000){
 
   ## Center all values
@@ -70,151 +72,28 @@ cv.sparse.mediation= function(X,M,Y,tol=10^(-10),K=5,max.iter=100,
   cvid = (rep(1:K, each=ceiling(N/K))[1:N])[sort.int(rnorm(N),index.return=TRUE)$ix]
 
   if(multicore>1){
-    options(cores = multicore)
-    z<-mclapply(1:K, function(fold){cv.sparse.mediation.threeway.subroutine(fold, Y,X,M,cvid,lambda, alpha,tau,max.iter, tol)}, mc.cores=multicore)
+    z<-mclapply(1:K, function(fold){
+      re=sparse.mediation(Y=Y[cvid!=fold,],X= X[cvid!=fold,],M=M[cvid!=fold,], lambda=lambda, lambda2=lambda2,tol=tol,alpha=alpha,
+                       tau=tau)
+      y=Y[cvid==fold,];x=X[cvid==fold,] ;m=M[cvid==fold,]
+      mse=unlist(lapply(1:ncol(re$hata), function(loc){ mean((y - re$c[loc] - m %*%re$hatb[,loc])^2) + mean((m - x %*% t(re$hata[,loc]))^2)}))
+      return(list(re=re,mse=mse))},mc.cores=multicore)
   }else{
-    z<-lapply(1:K, function(fold){cv.sparse.mediation.threeway.subroutine(fold, Y,X,M,cvid,lambda,alpha,tau,max.iter, tol)})
+    z<-lapply(1:K, function(fold){
+      re=sparse.mediation(Y=Y[cvid!=fold,],X= X[cvid!=fold,],M=M[cvid!=fold,], lambda=lambda, lambda2=lambda2,tol=tol,alpha=alpha,
+                          tau=tau)
+      y=Y[cvid==fold,];x=X[cvid==fold,] ;m=M[cvid==fold,]
+      mse=unlist(lapply(1:ncol(re$hata), function(loc){ mean((y - re$c[loc] - m %*%re$hatb[,loc])^2) + mean((m - x %*% t(re$hata[,loc]))^2)}))
+      return(list(re=re,mse=mse))})
   }
-
-  mseest=alphaest=lambdaest=tauest=array(NA,dim=c(length(alpha),length(lambda),length(tau)))
-
-
-  for (k in 1:length(tau)){
-    for (l in 1:length(alpha)){
-    tmpmse=matrix(NA,K,length(lambda))
-      for (j in 1:K){
-        tmpmse[j,]=(z[[j]]$mse)[[k]][[l]]$mse
-      }
-      mseest[l,,k]=apply(tmpmse,2,sum)
-      alphaest[l,,k]=rep(z[[j]]$mse[[k]][[l]]$alpha,length(lambda))
-      lambdaest[l,,k]=z[[j]]$mse[[k]][[l]]$lambda
-      tauest[l,,k]<-tau[k]
-
-    }
-  }
+  mseest=apply(do.call(cbind,lapply(z,function(x)x$mse)),1,mean)
   minloc=which.min(mseest)
-  min.lambda=lambdaest[minloc]
-  min.alpha=alphaest[minloc]
-  min.tau=tauest[minloc]
+  min.lambda1=ifelse(is.null(z[[1]]$re$lambda)==TRUE, z[[1]]$re$lambda1[minloc],z[[1]]$re$lambda[minloc])
+  min.lambda2=ifelse(is.null(z[[1]]$re$lambda)==TRUE, z[[1]]$re$lambda2[minloc],NULL)
+  min.alpha=z[[1]]$re$alpha[minloc]
+  min.tau=z[[1]]$re$tau[minloc]
 
-  return(list(cv.lambda=min.lambda,cv.tau=min.tau, cv.alpha=min.alpha,cv.mse=mseest[minloc],mse=mseest, lambda=lambdaest, tau=tauest,alpha=alphaest,z=z))
-
+  return(list(cv.lambda1=min.lambda1,cv.lambda2=min.lambda2,cv.tau=min.tau, cv.alpha=min.alpha,cv.mse=mseest[minloc],mse=mseest))
 }
 
-cv.sparse.mediation.twoway.subroutine<- function(k, Y,X,M,cvid,lambda,alpha,max.iter=100, tol=10^(-10)){
-  Y.test=Y[cvid==k]#as.vector(scale(Y[cvid==k],center=TRUE,scale=FALSE))
-  Y.train=Y[cvid!=k]
-  X.test=matrix(X[cvid==k,],sum(cvid==k),1)#matrix(scale(X[cvid==k,],center=TRUE,scale=FALSE),sum(cvid==k),1)
-  X.train=X[cvid!=k,]
-  M.test=M[cvid==k,]#scale(M[cvid==k,],center=TRUE,scale=FALSE)
-  M.train=M[cvid!=k,]
-  #boxplot(t(alpha.train))
-  r.train=sparse.mediation.twoway(X.train,M.train,Y.train,tol=tol,max.iter=max.iter,lambda = lambda,alpha=alpha)
-  mse = lapply(r.train, function(obj){cv.sparse.mediation.msecomputing(obj, Y.test, X.test, M.test)})
-  return(list(r.train=r.train,mse=mse))
-}
 
-cv.sparse.mediation.threeway.subroutine<- function(fold, Y,X,M,cvid,lambda,alpha,tau,max.iter=100, tol=10^(-10)){
-  Y.test=Y[cvid==fold]#as.vector(scale(Y[cvid==k],center=TRUE,scale=FALSE))
-  Y.train=Y[cvid!=fold]
-  X.test=matrix(X[cvid==fold,],sum(cvid==fold),1)#matrix(scale(X[cvid==k,],center=TRUE,scale=FALSE),sum(cvid==k),1)
-  X.train=X[cvid!=fold]
-  M.test=M[cvid==fold,]#scale(M[cvid==k,],center=TRUE,scale=FALSE)
-  M.train=M[cvid!=fold,]
-  #boxplot(t(alpha.train))
-  r.train=sparse.mediation.threeway(X.train,M.train,Y.train,tol=tol,max.iter=max.iter,lambda = lambda,alpha=alpha,tau=tau)
-#  return(r.train)
-#}
-  mse<-c()
-  length.alpha=length(alpha)
-  for (l in 1:length(tau)){
-    mse[[l]] = lapply(r.train[[(l-1)*length.alpha + (1:length.alpha)]], function(obj){cv.sparse.mediation.msecomputing(obj, Y.test, X.test, M.test)})
-  }
-  return(list(r.train=r.train,mse=mse))
-}
-
-cv.sparse.mediation.msecomputing<-function(obj, Y.test, X.test, M.test){
-  V = (nrow(obj$beta))
-  a.train=obj$hata
-  b.train=obj$hatb
-  c.train=matrix(obj$c,nrow=1)
-  #	print(obj)
-  yhat = X.test %*% c.train + M.test %*% b.train
-  mse.m = rep(0,length(obj$lambda))
-  for (j in 1:length(obj$lambda)){
-    mhat=X.test %*% t(a.train[,j])
-    mse.m[j]=sum((M.test - mhat)^2)
-  }
-  mse=(apply(Y.test-yhat, 2,function(x){sum(x^2)})) + mse.m
-  if (length(obj$alpha)>0){
-    return(list(mse=mse,lambda=obj$lambda,alpha=obj$alpha))
-  }else{
-    return(list(mse=mse,lambda=obj$lambda,alpha=NULL))
-  }
-}
-
-mclapply.hack <- function(mc.cores=4,...) {
-  ## Create a cluster
-  size.of.list <- length(list(...)[[1]])
-  cl <- makeCluster( mc.cores)
-
-  ## Find out the names of the loaded packages
-  loaded.package.names <- c(
-    ## Base packages
-    sessionInfo()$basePkgs,
-    ## Additional packages
-    names( sessionInfo()$otherPkgs ))
-
-  tryCatch( {
-
-    ## Copy over all of the objects within scope to
-    ## all clusters.
-    this.env <- environment()
-    while( identical( this.env, globalenv() ) == FALSE ) {
-      clusterExport(cl,
-                    ls(all.names=TRUE, env=this.env),
-                    envir=this.env)
-      this.env <- parent.env(environment())
-    }
-    clusterExport(cl,
-                  ls(all.names=TRUE, env=globalenv()),
-                  envir=globalenv())
-
-    ## Load the libraries on all the clusters
-    ## N.B. length(cl) returns the number of clusters
-    parLapply( cl, 1:length(cl), function(xx){
-      lapply(loaded.package.names, function(yy) {
-        require(yy , character.only=TRUE)})
-    })
-
-    ## Run the lapply in parallel
-    return( parLapply( cl, ...) )
-  }, finally = {
-    ## Stop the cluster
-    stopCluster(cl)
-  })
-}
-
-## Warn the user if they are using Windows
-if( Sys.info()[['sysname']] == 'Windows' ){
-  message(paste(
-    "\n",
-    "   *** Microsoft Windows detected ***\n",
-    "   \n",
-    "   For technical reasons, the MS Windows version of mclapply()\n",
-    "   is implemented as a serial function instead of a parallel\n",
-    "   function.",
-    "   \n\n",
-    "   As a quick hack, we replace this serial version of mclapply()\n",
-    "   with a wrapper to parLapply() for this R session. Please see\n\n",
-    "     http://www.stat.cmu.edu/~nmv/2014/07/14/implementing-mclapply-on-windows \n\n",
-    "   for details.\n\n"))
-}
-
-## If the OS is Windows, set mclapply to the
-## the hackish version. Otherwise, leave the
-## definition alone.
-mclapply <- switch( Sys.info()[['sysname']],
-                    Windows = {mclapply.hack},
-                    Linux   = {mclapply},
-                    Darwin  = {mclapply})

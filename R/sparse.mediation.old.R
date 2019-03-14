@@ -15,8 +15,9 @@
 #' @param max.iter (default=100) maximum iteration
 #' @param lambda (default=log(1+(1:50)/125)) tuning parameter for L1 penalization
 #' @param alpha (defult=1) tuning parameter for L2 penalization
-#' @param figure (defult=NULL) print figures for mean predictive errors by tuning parameters alpha and lambda
 #' @param glmnet.penalty.factor (default=c(0,rep(1,2*V))) give different weight of penalization for the 2V mediation paths.
+#' @param tau (default=1) tuning parameter for L1 penality weighting for paths a and b.
+#' @param verbose (default=FALSE) print progress
 #' @return c directeffect
 #' @return hatb Path b (M->Y given X) estimates
 #' @return hata Path a (X->M) estimates
@@ -41,7 +42,7 @@
 #' @import glmnet
 #' @export
 sparse.mediation.old = function(X,M,Y,tol=10^(-10),max.iter=100,lambda = log(1+(1:50)/125),
-                                glmnet.penalty.factor=c(0,rep(1,2*V)),alpha=1,threshold=0.00001,verbose=FALSE){
+                                glmnet.penalty.factor=c(0,rep(1,2*V)),alpha=1,tau=1,verbose=FALSE){
 
 
   ## Center all values, and also make their scales to be 1. In this context, all coefficients will be dexribed in terms of correlation or partial correlations.
@@ -71,10 +72,12 @@ sparse.mediation.old = function(X,M,Y,tol=10^(-10),max.iter=100,lambda = log(1+(
   tMX = t(M)%*%X
 
   ## Interative Update
-
-  betaest =  matrix(0,1+2*V,length(lambda))
-  for (j in 1:length(lambda)){
-    if (verbose==TRUE){print(paste("Lambda",lambda[j]))}
+  alphalist=rep(alpha, each= length(lambda)*length(tau))
+  taulist=rep(rep(tau, each= length(lambda)),length(alpha))
+  lam=rep(lambda, length(tau)*length(alpha))
+  betaest =  matrix(0,1+2*V,length(lam))
+  for (j in 1:length(lam)){
+    if (verbose==TRUE){print(paste("Lambda",lam[j]))}
     gamma_new = invtUU %*% tUY
     alpha_new = t(ginv(t(X)%*%X)%*%t(X)%*%M)
 
@@ -101,17 +104,15 @@ sparse.mediation.old = function(X,M,Y,tol=10^(-10),max.iter=100,lambda = log(1+(
       sqmatA[(1+V)+ 1:V,(1+V)+ 1:V]=  sqrt(as.numeric(tXX)) * Sigma2.sqrt.inv
       C = ginv(sqmatA) %*% rbind(tUY/sigma1, Sigma2.inv%*%tMX)
 
-      if(is.null(glmnet.penalty.factor)==TRUE){
-        fit = glmnet(sqmatA, C,lambda=lambda[j],alpha=alpha)
-      }else{
-        fit = glmnet(sqmatA, C,lambda=lambda[j],penalty.factor=glmnet.penalty.factor,alpha=alpha)
-      }
+
+      fit = glmnet(sqmatA, C,lambda=lam[j],penalty.factor=c(1,rep(1,V),taulist[j]*rep(1,V)),alpha=alphalist[j])
+
 
       beta_new = as.vector(predict(fit,type="coef"))[-1]
       ## use thresholds as well: since all variables are standardized, coefficients less than 0.001 does not have any meaning.
-      if (threshold>0){
-        beta_new[abs(beta_new)<threshold]<-0
-      }
+      #if (threshold>0){
+      #  beta_new[abs(beta_new)<threshold]<-0
+      #}
       #beta_new[(1:V) +1]*beta_new[(1:V) +V+1]
       gamma_new = beta_new[1:(V+1)]
       alpha_new = beta_new[(1:V)+ V+1]
@@ -131,8 +132,9 @@ sparse.mediation.old = function(X,M,Y,tol=10^(-10),max.iter=100,lambda = log(1+(
     hatb=betaest[(1:V)+1,]*Y.sd/M.sd,
     hata=betaest[(1:V)+V+1,]*M.sd/X.sd,
     medest = betaest[(1:V)+1,]*betaest[(1:V)+V+1,]*Y.sd/X.sd,
-    alpha=alpha,
-    lambda = lambda,
+    alpha=alphalist,
+    tau=taulist,
+    lambda = lam,
     nump=nump
   ))
 }

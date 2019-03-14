@@ -1,7 +1,7 @@
 #' Compute squareroot of large covariance matrix
 #'
 #' @param mat Covariance matrix
-#' @param threshold
+#' @param thresh (default=10^(-20))
 #' @param K Dimension of the matrix. Default is set as ncol(mat)-1
 #' @return squareroot of matrix
 #' @examples

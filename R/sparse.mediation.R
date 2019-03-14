@@ -14,10 +14,12 @@
 #' @param tol (default -10^(-5)) convergence criterion
 #' @param max.iter (default=100) maximum iteration
 #' @param lambda (default=log(1+(1:50)/125)) tuning parameter for L1 penalization
+#' @param lambda2 (default=c(0.2,0.5)) tuning parameter for L1 penalization for covariance matrix, used only for p>n.
 #' @param alpha (default=1) tuning parameter for L2 penalization
 #' @param tau (default=1) tuning parameter for differentail weight between paths a (X -> M) and b (M -> Y)
 #' @param figure (defult=NULL) print figures for mean predictive errors by tuning parameters alpha and lambda
 #' @param glmnet.penalty.factor (default=c(0,rep(1,2*V))) give different weight of penalization for the 2V mediation paths.
+#' @param verbose (default=TRUE) print progress.
 #' @return c: directeffect per each tuning parameter lambda. length(lambda)-dimensional vector
 #' @return hatb: Path b (M->Y given X) estimates: V-by-lenbth(lambda)  matrix
 #' @return hata: Path a (X->M) estimates: V-by-lenbth(lambda)  matrix
@@ -41,10 +43,14 @@
 #' @import parallel
 #' @import MASS
 #' @import glmnet
+#' @import Matrix
+#' @import QUIC
 #' @export
 
 sparse.mediation = function(X,M,Y,tol=10^(-5),max.iter=50,
-                                   lambda = log(1+(1:30)/100),alpha=1,tau=1){
+                            lambda = log(1+(1:30)/100),
+                            lambda2 = c(0.2,0.5),
+                            alpha=1,tau=1,verbose=TRUE){
 #  library(parallel)
 #  library(MASS)
 #  library(glmnet)
@@ -54,14 +60,11 @@ sparse.mediation = function(X,M,Y,tol=10^(-5),max.iter=50,
   re=as.list(re)
   V = ncol(M)
   N=nrow(M)
-  weights = c(0,rep(1,V), tau*rep(1,V))
-  for (j in 1:length(alpha)){
-    if(N > V){
-    re[[j]]=sparse.mediation.old(X,M,Y,tol=tol,max.iter=max.iter,lambda = lambda,alpha=alpha[j],glmnet.penalty.factor=weights)
-    }else{re[[j]]=sparse.mediation.largep(X,M,Y,tol=tol,max.iter=max.iter,lambda = lambda,alpha=alpha[j],glmnet.penalty.factor=weights)}
 
-    re[[j]]$alpha=alpha[j]
-    re[[j]]$tau=tau
+  if(N > 2*V){
+    re=sparse.mediation.old(X,M,Y,tol=tol,max.iter=max.iter,lambda = lambda,alpha=alpha,tau=tau,verbose=verbose)
+  }else{re=sparse.mediation.largep_omega(X,M,Y,tol=tol,max.iter=max.iter,lambda1 = lambda,
+                                                lambda2=lambda2,alpha=alpha,tau=tau,verbose=verbose)
   }
   return(re)
 }

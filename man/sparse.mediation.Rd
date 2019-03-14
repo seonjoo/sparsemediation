@@ -5,7 +5,8 @@
 \title{Conduct sparse mediation with elastic net}
 \usage{
 sparse.mediation(X, M, Y, tol = 10^(-5), max.iter = 50, lambda = log(1 +
-  (1:30)/100), alpha = 1, tau = 1)
+  (1:30)/100), lambda2 = c(0.2, 0.5), alpha = 1, tau = 1,
+  verbose = TRUE)
 }
 \arguments{
 \item{X}{One-dimensional predictor}
@@ -20,9 +21,13 @@ sparse.mediation(X, M, Y, tol = 10^(-5), max.iter = 50, lambda = log(1 +
 
 \item{lambda}{(default=log(1+(1:50)/125)) tuning parameter for L1 penalization}
 
+\item{lambda2}{(default=c(0.2,0.5)) tuning parameter for L1 penalization for covariance matrix, used only for p>n.}
+
 \item{alpha}{(default=1) tuning parameter for L2 penalization}
 
 \item{tau}{(default=1) tuning parameter for differentail weight between paths a (X -> M) and b (M -> Y)}
+
+\item{verbose}{(default=TRUE) print progress.}
 
 \item{figure}{(defult=NULL) print figures for mean predictive errors by tuning parameters alpha and lambda}
 

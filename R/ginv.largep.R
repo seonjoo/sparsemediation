@@ -1,7 +1,10 @@
 #' Compute inverse, squareroot and inverse of the square root of the covariance
 #'
-#' @param mat One-dimensional predictor
-#' @param threshold
+#' This is a miscelaneous function.
+#'
+#' @param x.c a data matrix (n x p)
+#' @param sqrtmat (default = TRUE) return square root of the covariance matrix
+#' @param sqrtinvmat (default = TRUE) return invere of the squared root of the covariance matrix
 #' @return squareroot of matrix
 #' @examples
 #' set.seed(1234)
@@ -13,7 +16,6 @@
 #' @keywords highdimensional mediation L1penalization
 #' @import parallel
 #' @import MASS
-#' @import glmnet
 #' @export
 
 ginv.largep<-function(x.c,sqrtmat=TRUE, sqrtinvmat=TRUE){

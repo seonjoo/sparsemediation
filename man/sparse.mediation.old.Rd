@@ -6,7 +6,7 @@
 \usage{
 sparse.mediation.old(X, M, Y, tol = 10^(-10), max.iter = 100,
   lambda = log(1 + (1:50)/125), glmnet.penalty.factor = c(0, rep(1, 2 * V)),
-  alpha = 1, threshold = 1e-05, verbose = FALSE)
+  alpha = 1, tau = 1, verbose = FALSE)
 }
 \arguments{
 \item{X}{One-dimensional predictor}
@@ -25,7 +25,9 @@ sparse.mediation.old(X, M, Y, tol = 10^(-10), max.iter = 100,
 
 \item{alpha}{(defult=1) tuning parameter for L2 penalization}
 
-\item{figure}{(defult=NULL) print figures for mean predictive errors by tuning parameters alpha and lambda}
+\item{tau}{(default=1) tuning parameter for L1 penality weighting for paths a and b.}
+
+\item{verbose}{(default=FALSE) print progress}
 }
 \value{
 c directeffect

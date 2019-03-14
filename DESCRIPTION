@@ -15,4 +15,5 @@ Imports:
     parallel,
     MASS,
     rsvd,
-    Matrix
+    Matrix,
+    QUIC

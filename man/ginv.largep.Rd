@@ -7,13 +7,17 @@
 ginv.largep(x.c, sqrtmat = TRUE, sqrtinvmat = TRUE)
 }
 \arguments{
-\item{mat}{One-dimensional predictor}
+\item{x.c}{a data matrix (n x p)}
+
+\item{sqrtmat}{(default = TRUE) return square root of the covariance matrix}
+
+\item{sqrtinvmat}{(default = TRUE) return invere of the squared root of the covariance matrix}
 }
 \value{
 squareroot of matrix
 }
 \description{
-Compute inverse, squareroot and inverse of the square root of the covariance
+This is a miscelaneous function.
 }
 \examples{
 set.seed(1234)

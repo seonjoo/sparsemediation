@@ -50,7 +50,7 @@
 sparse.mediation = function(X,M,Y,tol=10^(-5),max.iter=50,
                             lambda = log(1+(1:30)/100),
                             lambda2 = c(0.2,0.5),
-                            alpha=1,tau=1,verbose=TRUE){
+                            alpha=1,tau=1,verbose=FALSE){
 #  library(parallel)
 #  library(MASS)
 #  library(glmnet)

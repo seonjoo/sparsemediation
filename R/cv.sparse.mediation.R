@@ -88,8 +88,8 @@ cv.sparse.mediation= function(X,M,Y,tol=10^(-10),K=5,max.iter=100,
   }
   mseest=apply(do.call(cbind,lapply(z,function(x)x$mse)),1,mean)
   minloc=which.min(mseest)
-  min.lambda1=ifelse(is.null(z[[1]]$re$lambda)==TRUE, z[[1]]$re$lambda1[minloc],z[[1]]$re$lambda[minloc])
-  min.lambda2=ifelse(is.null(z[[1]]$re$lambda)==TRUE, z[[1]]$re$lambda2[minloc],NULL)
+  min.lambda1=z[[1]]$re$lambda1[minloc]
+  min.lambda2=z[[1]]$re$lambda2[minloc]
   min.alpha=z[[1]]$re$alpha[minloc]
   min.tau=z[[1]]$re$tau[minloc]
 

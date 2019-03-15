@@ -61,10 +61,11 @@ sparse.mediation = function(X,M,Y,tol=10^(-5),max.iter=50,
   V = ncol(M)
   N=nrow(M)
 
-  if(N > 2*V){
-    re=sparse.mediation.old(X,M,Y,tol=tol,max.iter=max.iter,lambda = lambda,alpha=alpha,tau=tau,verbose=verbose)
-  }else{re=sparse.mediation.largep_omega(X,M,Y,tol=tol,max.iter=max.iter,lambda1 = lambda,
+ # if(N > 2*V){
+#    re=sparse.mediation.old(X,M,Y,tol=tol,max.iter=max.iter,lambda = lambda,alpha=alpha,tau=tau,verbose=verbose)
+ # }else{
+  re=sparse.mediation.largep_omega(X,M,Y,tol=tol,max.iter=max.iter,lambda1 = lambda,
                                                 lambda2=lambda2,alpha=alpha,tau=tau,verbose=verbose)
-  }
+  #}
   return(re)
 }

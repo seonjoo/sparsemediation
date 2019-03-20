@@ -17,8 +17,6 @@
 #' @param lambda2 (default=c(0.2,0.5)) tuning parameter for L1 penalization for covariance matrix, used only for p>n.
 #' @param alpha (default=1) tuning parameter for L2 penalization
 #' @param tau (default=1) tuning parameter for differentail weight between paths a (X -> M) and b (M -> Y)
-#' @param figure (defult=NULL) print figures for mean predictive errors by tuning parameters alpha and lambda
-#' @param glmnet.penalty.factor (default=c(0,rep(1,2*V))) give different weight of penalization for the 2V mediation paths.
 #' @param verbose (default=TRUE) print progress.
 #' @param Omega.out (defult=TRUE) output Omega estimates
 #' @return c: directeffect per each tuning parameter lambda. length(lambda)-dimensional vector
@@ -31,6 +29,7 @@
 #' @return nump: Number of selected mediation paths
 #' @return Omega Estimated covariance matrix of the mediator
 #' @examples
+#' library(sparsemediation)
 #' N=100
 #' V=50
 #' set.seed(1234)
@@ -38,7 +37,7 @@
 #' X = rnorm(N)
 #' M =  X %*% t(a)+ matrix(rnorm(N*V),N,V)
 #' Y =  X + M %*% b + rnorm(N)
-#' sparse.mediation(X,M,Y,tol=10^(-10),max.iter=100,lambda = log(1+(1:25)/50))
+#' sparse.mediation(X,M,Y)
 #' @author Seonjoo Lee, \email{sl3670@cumc.columbia.edu}
 #' @references TBA
 #' @keywords highdimensional mediation glmnet
@@ -51,12 +50,8 @@
 
 sparse.mediation = function(X,M,Y,tol=10^(-5),max.iter=50,
                             lambda = log(1+(1:30)/100),
-                            lambda2 = c(0.2,0.5),
+                            lambda2 = c(0.3,0.5),
                             alpha=1,tau=1,verbose=FALSE,Omega.out=TRUE){
-#  library(parallel)
-#  library(MASS)
-#  library(glmnet)
-
 
   re=new.env()
   re=as.list(re)

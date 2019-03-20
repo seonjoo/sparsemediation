@@ -29,6 +29,7 @@
 #' @return nump Number of selected mediation paths
 #' @return Omega Estimated covariance matrix of the mediator
 #' @examples
+#' library(sparsemediation)
 #' N=100
 #' V=500
 #' set.seed(1234)
@@ -51,7 +52,7 @@
 #' @import QUIC
 #' @export
 sparse.mediation.largep_omega = function(X,M,Y,tol=10^(-10),max.iter=10,
-                                         lambda2=0.2,lambda1 = log(1+(1:50)/125),
+                                         lambda2=0.3,lambda1 = log(1+(1:50)/125),
                                          #glmnet.penalty.factor=rep(1,1+2*V),
                                          tau=1,
                                          alpha=1,verbose=FALSE,

@@ -18,6 +18,7 @@
 #' @param alpha (defult=1) tuning parameter for L2 penalization
 #' @param tau (default=1) tuning parameter for L1 penality weighting for paths a and b.
 #' @param verbose (default=FALSE) print progress
+#' @param Omega.out (defult=TRUE) output Omega estimates
 #' @return c directeffect
 #' @return hatb Path b (M->Y given X) estimates
 #' @return hata Path a (X->M) estimates
@@ -26,6 +27,7 @@
 #' @return lambda1 Tuning parameters for regression coefficients
 #' @return lambda2 Tuning parameters for inversed covariance matrix (Omega)
 #' @return nump Number of selected mediation paths
+#' @return Omega Estimated covariance matrix of the mediator
 #' @examples
 #' N=100
 #' V=500
@@ -52,7 +54,8 @@ sparse.mediation.largep_omega = function(X,M,Y,tol=10^(-10),max.iter=10,
                                          lambda2=0.2,lambda1 = log(1+(1:50)/125),
                                          #glmnet.penalty.factor=rep(1,1+2*V),
                                          tau=1,
-                                         alpha=1,verbose=FALSE){
+                                         alpha=1,verbose=FALSE,
+                                         Omega.out=TRUE){
 
 
   ## Center all values, and also make their scales to be 1. In this context, all coefficients will be dexribed in terms of correlation or partial correlations.
@@ -134,7 +137,7 @@ sparse.mediation.largep_omega = function(X,M,Y,tol=10^(-10),max.iter=10,
   medest = betaest[(1:V)+1,]*betaest[(1:V)+V+1,]
   nump=apply(betaest,2,function(x){sum(abs(x)>0)})
 
-
+  if(Omega.out==FALSE){Omega=NULL}
   return(list(
     c = cest,
     hatb=betaest[(1:V)+1,]*Y.sd/M.sd,
@@ -144,6 +147,7 @@ sparse.mediation.largep_omega = function(X,M,Y,tol=10^(-10),max.iter=10,
     tau=taulist,
     lambda1 = lam1,
     lambda2=lam2,
-    nump=nump
+    nump=nump,
+    Omega=Omega
   ))
 }

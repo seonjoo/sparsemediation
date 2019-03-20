@@ -6,7 +6,7 @@
 \usage{
 cv.sparse.mediation(X, M, Y, tol = 10^(-10), K = 5, max.iter = 100,
   lambda = log(1 + (1:15)/50), lambda2 = c(0.2, 0.5), alpha = 1,
-  tau = c(0.5, 1, 2), multicore = 1, seednum = 1e+06)
+  tau = c(0.5, 1, 2), multicore = 1, seednum = 1e+06, verbose = FALSE)
 }
 \arguments{
 \item{X}{One-dimensional predictor}
@@ -33,7 +33,7 @@ cv.sparse.mediation(X, M, Y, tol = 10^(-10), K = 5, max.iter = 100,
 
 \item{seednum}{(default=10000) seed number for cross validation}
 
-\item{glmnet.penalty.factor}{(default=c(0,rep(1,2*V))) give different weight of penalization for the 2V mediation paths.}
+\item{verbose}{(default=FALSE)}
 }
 \value{
 cv.lambda: optimal lambda
@@ -58,6 +58,7 @@ z: cross-valication results
 Conduct K-fold cross validation for sparse mediation with elastic net with multiple tuning parameters
 }
 \examples{
+library(sparsemediation)
 N=200
 V=50
 set.seed(1234)
@@ -65,13 +66,10 @@ a = rbinom(V,1,0.1)*5;b<-a
 X = rnorm(N)
 M =  X \%*\% t(a)+ matrix(rnorm(N*V),N,V)
 Y =  as.vector(X + M \%*\% b + rnorm(N))
-system.time(cvfit<-cv.sparse.mediation(X, M, Y, tol = 10^(-10), K = 4, max.iter = 100,lambda = log(1 + (1:10)/25), alpha = 1, tau=c(0.25,0.5,1,2,4,8),multicore = 4, seednum = 1e+06))
+cvfit<-cv.sparse.mediation(X, M, Y, K = 4, lambda=c(0.05,0.2,length=5), tau=c(0.5,1,2),multicore = 4)
 cvfit$cv.lambda
 cvfit$cv.tau
-fit<-sparse.mediation(X,M,Y,tol=10^(-10),max.iter=100,lambda = cvfit$cv.lambda, alpha=cvfit$cv.alpha,tau=cvfit$cv.tau)
-nonzerolist = c(0,as.numeric(abs(c(fit[[1]]$hatb, fit[[1]]$hata))<0.0001))
-refit=sparse.mediation.old(X,M,Y,lambda = 100000,alpha=cvfit$cv.alpha, glmnet.penalty.factor=nonzerolist)
-cbind(a*b,refit$medest)
+fit<-sparse.mediation(X,M,Y,lambda = cvfit$cv.lambda, alpha=cvfit$cv.alpha,tau=cvfit$cv.tau)
 }
 \references{
 TBA

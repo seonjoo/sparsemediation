@@ -20,6 +20,7 @@
 #' @param figure (defult=NULL) print figures for mean predictive errors by tuning parameters alpha and lambda
 #' @param glmnet.penalty.factor (default=c(0,rep(1,2*V))) give different weight of penalization for the 2V mediation paths.
 #' @param verbose (default=TRUE) print progress.
+#' @param Omega.out (defult=TRUE) output Omega estimates
 #' @return c: directeffect per each tuning parameter lambda. length(lambda)-dimensional vector
 #' @return hatb: Path b (M->Y given X) estimates: V-by-lenbth(lambda)  matrix
 #' @return hata: Path a (X->M) estimates: V-by-lenbth(lambda)  matrix
@@ -28,6 +29,7 @@
 #' @return lambda: a vector of tuning parameters for L1-penalization
 #' @return tau: weight used.
 #' @return nump: Number of selected mediation paths
+#' @return Omega Estimated covariance matrix of the mediator
 #' @examples
 #' N=100
 #' V=50
@@ -50,7 +52,7 @@
 sparse.mediation = function(X,M,Y,tol=10^(-5),max.iter=50,
                             lambda = log(1+(1:30)/100),
                             lambda2 = c(0.2,0.5),
-                            alpha=1,tau=1,verbose=FALSE){
+                            alpha=1,tau=1,verbose=FALSE,Omega.out=TRUE){
 #  library(parallel)
 #  library(MASS)
 #  library(glmnet)
@@ -65,7 +67,8 @@ sparse.mediation = function(X,M,Y,tol=10^(-5),max.iter=50,
 #    re=sparse.mediation.old(X,M,Y,tol=tol,max.iter=max.iter,lambda = lambda,alpha=alpha,tau=tau,verbose=verbose)
  # }else{
   re=sparse.mediation.largep_omega(X,M,Y,tol=tol,max.iter=max.iter,lambda1 = lambda,
-                                                lambda2=lambda2,alpha=alpha,tau=tau,verbose=verbose)
+                                                lambda2=lambda2,alpha=alpha,tau=tau,verbose=verbose,
+                                   Omega.out=Omega.out)
   #}
   return(re)
 }

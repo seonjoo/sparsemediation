@@ -5,8 +5,8 @@
 \title{Conduct sparse mediation for parge p ( p > n) with L1 or L2 penalization using fast computation of inverse matrix}
 \usage{
 sparse.mediation.largep_omega(X, M, Y, tol = 10^(-10), max.iter = 10,
-  lambda2 = 0.2, lambda1 = log(1 + (1:50)/125), tau = 1, alpha = 1,
-  verbose = FALSE)
+  lambda2 = 0.3, lambda1 = log(1 + (1:50)/125), tau = 1, alpha = 1,
+  verbose = FALSE, Omega.out = TRUE)
 }
 \arguments{
 \item{X}{One-dimensional predictor}
@@ -28,6 +28,8 @@ sparse.mediation.largep_omega(X, M, Y, tol = 10^(-10), max.iter = 10,
 \item{alpha}{(defult=1) tuning parameter for L2 penalization}
 
 \item{verbose}{(default=FALSE) print progress}
+
+\item{Omega.out}{(defult=TRUE) output Omega estimates}
 }
 \value{
 c directeffect
@@ -45,6 +47,8 @@ lambda1 Tuning parameters for regression coefficients
 lambda2 Tuning parameters for inversed covariance matrix (Omega)
 
 nump Number of selected mediation paths
+
+Omega Estimated covariance matrix of the mediator
 }
 \description{
 Fit a mediation model via penalized maximum likelihood and structural equation model.
@@ -58,6 +62,7 @@ Multiple Mediaton Model:
 And in the optimization, we do not regularize c', due to the assumption of partial mediation.
 }
 \examples{
+library(sparsemediation)
 N=100
 V=500
 set.seed(1234)

@@ -74,14 +74,14 @@ cv.sparse.mediation= function(X,M,Y,tol=10^(-10),K=5,max.iter=100,
   if(multicore>1){
     z<-mclapply(1:K, function(fold){
       re=sparse.mediation(Y=Y[cvid!=fold,],X= X[cvid!=fold,],M=M[cvid!=fold,], lambda=lambda, lambda2=lambda2,tol=tol,alpha=alpha,
-                       tau=tau,verbose=verbose)
+                       tau=tau,verbose=verbose,Omega.out=FALSE)
       y=Y[cvid==fold,];x=X[cvid==fold,] ;m=M[cvid==fold,]
       mse=unlist(lapply(1:ncol(re$hata), function(loc){ mean((y - re$c[loc] - m %*%re$hatb[,loc])^2) + mean((m - x %*% t(re$hata[,loc]))^2)}))
       return(list(re=re,mse=mse))},mc.cores=multicore)
   }else{
     z<-lapply(1:K, function(fold){
       re=sparse.mediation(Y=Y[cvid!=fold,],X= X[cvid!=fold,],M=M[cvid!=fold,], lambda=lambda, lambda2=lambda2,tol=tol,alpha=alpha,
-                          tau=tau,verbose=verbose)
+                          tau=tau,verbose=verbose,Omega.out=FALSE)
       y=Y[cvid==fold,];x=X[cvid==fold,] ;m=M[cvid==fold,]
       mse=unlist(lapply(1:ncol(re$hata), function(loc){ mean((y - re$c[loc] - m %*%re$hatb[,loc])^2) + mean((m - x %*% t(re$hata[,loc]))^2)}))
       return(list(re=re,mse=mse))})

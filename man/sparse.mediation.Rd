@@ -5,8 +5,8 @@
 \title{Conduct sparse mediation with elastic net}
 \usage{
 sparse.mediation(X, M, Y, tol = 10^(-5), max.iter = 50, lambda = log(1 +
-  (1:30)/100), lambda2 = c(0.2, 0.5), alpha = 1, tau = 1,
-  verbose = TRUE)
+  (1:30)/100), lambda2 = c(0.3, 0.5), alpha = 1, tau = 1,
+  verbose = FALSE, Omega.out = TRUE)
 }
 \arguments{
 \item{X}{One-dimensional predictor}
@@ -29,9 +29,7 @@ sparse.mediation(X, M, Y, tol = 10^(-5), max.iter = 50, lambda = log(1 +
 
 \item{verbose}{(default=TRUE) print progress.}
 
-\item{figure}{(defult=NULL) print figures for mean predictive errors by tuning parameters alpha and lambda}
-
-\item{glmnet.penalty.factor}{(default=c(0,rep(1,2*V))) give different weight of penalization for the 2V mediation paths.}
+\item{Omega.out}{(defult=TRUE) output Omega estimates}
 }
 \value{
 c: directeffect per each tuning parameter lambda. length(lambda)-dimensional vector
@@ -49,6 +47,8 @@ lambda: a vector of tuning parameters for L1-penalization
 tau: weight used.
 
 nump: Number of selected mediation paths
+
+Omega Estimated covariance matrix of the mediator
 }
 \description{
 Fit a mediation model via penalized maximum likelihood and structural equation model.
@@ -62,6 +62,7 @@ Multiple Mediaton Model:
 And in the optimization, we do not regularize c', due to the assumption of partial mediation.
 }
 \examples{
+library(sparsemediation)
 N=100
 V=50
 set.seed(1234)
@@ -69,7 +70,7 @@ a = rbinom(V,1,0.1)*5;b<-a
 X = rnorm(N)
 M =  X \%*\% t(a)+ matrix(rnorm(N*V),N,V)
 Y =  X + M \%*\% b + rnorm(N)
-sparse.mediation(X,M,Y,tol=10^(-10),max.iter=100,lambda = log(1+(1:25)/50))
+sparse.mediation(X,M,Y)
 }
 \references{
 TBA

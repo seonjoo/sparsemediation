@@ -33,7 +33,7 @@
 #' N=100
 #' V=50
 #' set.seed(1234)
-#' a = rbinom(V,1,0.1)*5;b<-a
+#' a = rep(0,V);a[1:3]<-5;b<-a
 #' X = rnorm(N)
 #' M =  X %*% t(a)+ matrix(rnorm(N*V),N,V)
 #' Y =  X + M %*% b + rnorm(N)

@@ -18,7 +18,7 @@
 #' @param alpha (defult=1) tuning parameter for L2 penalization
 #' @param tau (default=1) tuning parameter for L1 penality weighting for paths a and b.
 #' @param verbose (default=FALSE) print progress
-#' @param Omega.out (defult=TRUE) output Omega estimates
+#' @param Omega.out (defult=FALSE) output Omega estimates (beta version WIP.)
 #' @return c directeffect
 #' @return hatb Path b (M->Y given X) estimates
 #' @return hata Path a (X->M) estimates
@@ -56,7 +56,7 @@ sparse.mediation.largep_omega = function(X,M,Y,tol=10^(-10),max.iter=10,
                                          #glmnet.penalty.factor=rep(1,1+2*V),
                                          tau=1,
                                          alpha=1,verbose=FALSE,
-                                         Omega.out=TRUE){
+                                         Omega.out=FALSE){
 
 
   ## Center all values, and also make their scales to be 1. In this context, all coefficients will be dexribed in terms of correlation or partial correlations.
@@ -113,8 +113,8 @@ sparse.mediation.largep_omega = function(X,M,Y,tol=10^(-10),max.iter=10,
         Sigma2 = t(tmp)%*%tmp/N
 
         Omega=QUIC( Sigma2,rho=lam2[j],msg=0)#Inverse matrix of the covariance matrix of M
-        Omega.sqrtmat=t(chol(Omega$X))#sqrtmat.comp(Omega$X)
-        Omega.sqrtmat.inv=t(chol(Omega$W))#sqrtmat.comp(Omega$W)
+        Omega.sqrtmat=t(chol(Omega$X,pivot=TRUE))#sqrtmat.comp(Omega$X)
+        Omega.sqrtmat.inv=t(chol(Omega$W, pivot=TRUE))#sqrtmat.comp(Omega$W)
 
         Asqmat = bdiag(1/sqrt(sigma1) * tUU$sqrtmat,  sqrt(as.numeric(tXX)) * Omega.sqrtmat)
         Asqmat.inv=bdiag(sqrt(sigma1) * tUU$sqrtinv,  1/sqrt(as.numeric(tXX)) * Omega.sqrtmat.inv)

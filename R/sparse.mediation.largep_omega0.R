@@ -51,7 +51,7 @@
 #' @import glmnet
 #' @import QUIC
 #' @export
-sparse.mediation.largep_omega = function(X,M,Y,tol=10^(-10),max.iter=10,
+sparse.mediation.largep_omega0 = function(X,M,Y,tol=10^(-10),max.iter=10,
                                          lambda2=0.3,lambda1 = log(1+(1:50)/125),
                                          #glmnet.penalty.factor=rep(1,1+2*V),
                                          tau=1,

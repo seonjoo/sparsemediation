@@ -31,7 +31,7 @@
 #' X = rnorm(N)
 #' M =  X %*% t(a)+ matrix(rnorm(N*V),N,V)
 #' Y =  as.vector(X + M %*% b + rnorm(N))
-#' cvfit<-cv.sparse.mediation(X, M, Y, K = 4, lambda=c(0.05,0.2,length=5), tau=c(0.5,1,2),multicore = 4)
+#' cvfit<-cv.sparse.mediation(X, M, Y, K = 4, lambda=c(0.05,0.2,length=5), tau=c(0.5,1,2),multicore =1)
 #' cvfit$cv.lambda
 #' cvfit$cv.tau
 #' fit<-sparse.mediation(X,M,Y,lambda = cvfit$cv.lambda, alpha=cvfit$cv.alpha,tau=cvfit$cv.tau)
@@ -69,22 +69,22 @@ cv.sparse.mediation= function(X,M,Y,tol=10^(-10),K=5,max.iter=100,
   set.seed(seednum)
   cvid = (rep(1:K, each=ceiling(N/K))[1:N])[sort.int(rnorm(N),index.return=TRUE)$ix]
 
+  oneunit<-function(fold){
+    re=sparse.mediation(Y=Y[cvid!=fold,],X= X[cvid!=fold,],M=M[cvid!=fold,], lambda=lambda, lambda2=lambda2,tol=tol,alpha=alpha,
+                        tau=tau,verbose=verbose,Omega.out=FALSE)
+    y=Y[cvid==fold,];x=X[cvid==fold,] ;m=M[cvid==fold,]
+    mse=unlist(lapply(1:ncol(re$hata), function(loc){ mean((y - re$c[loc] - m %*%re$hatb[,loc])^2) + mean((m - x %*% t(re$hata[,loc]))^2)}))
+    return(list(re=re,mse=mse))}
+
   if(multicore>1){
-    z<-mclapply(1:K, function(fold){
-      re=sparse.mediation(Y=Y[cvid!=fold,],X= X[cvid!=fold,],M=M[cvid!=fold,], lambda=lambda, lambda2=lambda2,tol=tol,alpha=alpha,
-                       tau=tau,verbose=verbose,Omega.out=FALSE)
-      y=Y[cvid==fold,];x=X[cvid==fold,] ;m=M[cvid==fold,]
-      mse=unlist(lapply(1:ncol(re$hata), function(loc){ mean((y - re$c[loc] - m %*%re$hatb[,loc])^2) + mean((m - x %*% t(re$hata[,loc]))^2)}))
-      return(list(re=re,mse=mse))},mc.cores=multicore)
+    z<-mclapply(1:K, function(kk){oneunit(kk)},mc.cores=multicore)
   }else{
-    z<-lapply(1:K, function(fold){
-      re=sparse.mediation(Y=Y[cvid!=fold,],X= X[cvid!=fold,],M=M[cvid!=fold,], lambda=lambda, lambda2=lambda2,tol=tol,alpha=alpha,
-                          tau=tau,verbose=verbose,Omega.out=FALSE)
-      y=Y[cvid==fold,];x=X[cvid==fold,] ;m=M[cvid==fold,]
-      mse=unlist(lapply(1:ncol(re$hata), function(loc){ mean((y - re$c[loc] - m %*%re$hatb[,loc])^2) + mean((m - x %*% t(re$hata[,loc]))^2)}))
-      return(list(re=re,mse=mse))})
+    z<-lapply(1:K, function(kk){oneunit(kk)})
   }
-  mseest=apply(do.call(cbind,lapply(z,function(x)x$mse)),1,mean)
+
+  mseest=apply(do.call(cbind,
+                       lapply(z,function(x){re=NA;tmp=x$mse;if(is.numeric(tmp)==TRUE){re=tmp};return(re)})),1,
+               function(x)mean(x, na.rm=TRUE))
   minloc=which.min(mseest)
   min.lambda1=z[[1]]$re$lambda1[minloc]
   min.lambda2=z[[1]]$re$lambda2[minloc]

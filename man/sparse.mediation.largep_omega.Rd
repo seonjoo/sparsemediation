@@ -5,8 +5,8 @@
 \title{Conduct sparse mediation for parge p ( p > n) with L1 or L2 penalization using fast computation of inverse matrix}
 \usage{
 sparse.mediation.largep_omega(X, M, Y, tol = 10^(-10), max.iter = 10,
-  lambda2 = 0.3, lambda1 = log(1 + (1:50)/125), tau = 1, alpha = 1,
-  verbose = FALSE, Omega.out = FALSE)
+  lambda2 = 0.3, lambda1 = seq(0.02, 0.4, length = 5), tau = 1,
+  alpha = 1, verbose = FALSE, Omega.out = FALSE)
 }
 \arguments{
 \item{X}{One-dimensional predictor}
@@ -21,7 +21,7 @@ sparse.mediation.largep_omega(X, M, Y, tol = 10^(-10), max.iter = 10,
 
 \item{lambda2}{Tuning parameter for Covariance matrix L1 penalization}
 
-\item{lambda1}{(default=log(1+(1:50)/125)) tuning parameter for regression coefficient L1 penalization}
+\item{lambda1}{(default=seq(0.02,0.4,length=5)) tuning parameter for regression coefficient L1 penalization}
 
 \item{tau}{(default=1) tuning parameter for L1 penality weighting for paths a and b.}
 

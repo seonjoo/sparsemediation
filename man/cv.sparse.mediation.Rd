@@ -66,7 +66,7 @@ a = rep(0,V);a[1:3]<-1;b<-a
 X = rnorm(N)
 M =  X \%*\% t(a)+ matrix(rnorm(N*V),N,V)
 Y =  as.vector(X + M \%*\% b + rnorm(N))
-cvfit<-cv.sparse.mediation(X, M, Y, K = 4, lambda=c(0.05,0.2,length=5), tau=c(0.5,1,2),multicore = 4)
+cvfit<-cv.sparse.mediation(X, M, Y, K = 4, lambda=c(0.05,0.2,length=5), tau=c(0.5,1,2),multicore =1)
 cvfit$cv.lambda
 cvfit$cv.tau
 fit<-sparse.mediation(X,M,Y,lambda = cvfit$cv.lambda, alpha=cvfit$cv.alpha,tau=cvfit$cv.tau)

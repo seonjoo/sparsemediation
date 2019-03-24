@@ -6,7 +6,7 @@
 \usage{
 sparse.mediation(X, M, Y, tol = 10^(-5), max.iter = 50, lambda = log(1 +
   (1:30)/100), lambda2 = c(0.3, 0.5), alpha = 1, tau = 1,
-  verbose = FALSE, Omega.out = TRUE)
+  verbose = FALSE, Omega.out = FALSE)
 }
 \arguments{
 \item{X}{One-dimensional predictor}

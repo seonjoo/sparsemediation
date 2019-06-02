@@ -55,14 +55,15 @@
 #' @importFrom stats var predict
 #' @export
 sparse.mediation.largep_omega0 = function(X,M,Y,tol=10^(-10),max.iter=10,
-                                         lambda2=0.3,lambda1 = seq(0.02,0.4,length=5),
-                                         #glmnet.penalty.factor=rep(1,1+2*V),
-                                         tau=1,
-                                         alpha=1,verbose=FALSE,
-                                         Omega.out=TRUE){
+                                          lambda2=0.3,lambda1 = seq(0.02,0.4,length=5),
+                                          #glmnet.penalty.factor=rep(1,1+2*V),
+                                          tau=1,
+                                          alpha=1,verbose=FALSE,
+                                          Omega.out=TRUE){
 
 
-  ## Center all values, and also make their scales to be 1. In this context, all coefficients will be dexribed in terms of correlation or partial correlations.
+  ## Center all values, and also make their scales to be 1. In this context,
+  ## all coefficients will be dexribed in terms of correlation or partial correlations.
   N = nrow(M)
   V = ncol(M)
   #Y.mean=mean(Y)
@@ -99,43 +100,47 @@ sparse.mediation.largep_omega0 = function(X,M,Y,tol=10^(-10),max.iter=10,
   lam1=rep(rep(lambda1, each=length(lambda2)), length(tau)*length(alpha))
   lam2=rep(rep(lambda2, length(lambda1)),length(tau)*length(alpha))
   for (j in 1:length(lam1)){
-    if(verbose==TRUE){print(paste("Lambda1=",lam1[j], "Lambda2=",lam2[j], "tau=",taulist[j], "alpha=",alphalist[j]))}
-      gamma_new = rep(0,V+1)#tUU$inv %*% tUY
-      alpha_new = rep(0,V)#t(ginv(tXX)%*%t(X)%*%M)
+    if(verbose==TRUE){
+      print(paste("Lambda1=",lam1[j],
+                  "Lambda2=",lam2[j], "tau=",taulist[j], "alpha=",alphalist[j]))
+    }
+    gamma_new = rep(0,V+1)#tUU$inv %*% tUY
+    alpha_new = rep(0,V)#t(ginv(tXX)%*%t(X)%*%M)
 
-      iter=0
-      err=1000
-      while( err>tol & iter<max.iter){
+    iter=0
+    err=1000
+    while( err>tol & iter<max.iter){
 
-        alpha_old=alpha_new
-        gamma_old = gamma_new
-        beta_old = c(gamma_old,alpha_old)
+      alpha_old=alpha_new
+      gamma_old = gamma_new
+      beta_old = c(gamma_old,alpha_old)
 
-        sigma1 = mean( (Y - U %*% gamma_old)^2)
-        tmp = M - matrix(X,N,1) %*% matrix(alpha_old,1,V)
-        Sigma2 = t(tmp)%*%tmp/N
+      sigma1 = mean( (Y - U %*% gamma_old)^2)
+      tmp = M - matrix(X,N,1) %*% matrix(alpha_old,1,V)
+      Sigma2 = t(tmp)%*%tmp/N
 
-        Omega=QUIC( Sigma2,rho=lam2[j],msg=0)#Inverse matrix of the covariance matrix of M
-        Omega.sqrtmat=sqrtmat.comp(Omega$X)
-        Omega.sqrtmat.inv=sqrtmat.comp(Omega$W)
+      Omega=QUIC( Sigma2,rho=lam2[j],msg=0)#Inverse matrix of the covariance matrix of M
+      Omega.sqrtmat=sqrtmat.comp(Omega$X)
+      Omega.sqrtmat.inv=sqrtmat.comp(Omega$W)
 
-        Asqmat = bdiag(1/sqrt(sigma1) * tUU$sqrtmat,  sqrt(as.numeric(tXX)) * Omega.sqrtmat)
-        Asqmat.inv=bdiag(sqrt(sigma1) * tUU$sqrtinv,  1/sqrt(as.numeric(tXX)) * Omega.sqrtmat.inv)
-        C = Asqmat.inv %*% rbind(tUY/sigma1, Omega$X%*%tMX)
+      Asqmat = bdiag(1/sqrt(sigma1) * tUU$sqrtmat,  sqrt(as.numeric(tXX)) * Omega.sqrtmat)
+      Asqmat.inv=bdiag(sqrt(sigma1) * tUU$sqrtinv,  1/sqrt(as.numeric(tXX)) * Omega.sqrtmat.inv)
+      C = Asqmat.inv %*% rbind(tUY/sigma1, Omega$X%*%tMX)
 
 
-        fit = glmnet(as.matrix(Asqmat), as.matrix(C),lambda=lam1[j],penalty.factor=c(1,rep(1,V),rep(taulist[j],V)),alpha=alphalist[j])
-        beta_new=coef(fit)[-1]
+      fit = glmnet(as.matrix(Asqmat), as.matrix(C),lambda=lam1[j],
+                   penalty.factor=c(1,rep(1,V),rep(taulist[j],V)),alpha=alphalist[j])
+      beta_new=coef(fit)[-1]
 
       #beta_new[(1:V) +1]*beta_new[(1:V) +V+1]
-        gamma_new = beta_new[1:(V+1)]
-        alpha_new = beta_new[(1:V)+ V+1]
-        err = sum((beta_old[-1]-beta_new[-1])^2)
-        iter=iter+1
-        if (verbose==TRUE){print(c(iter, err))}
-      }
-      betaest[,j]=beta_new
+      gamma_new = beta_new[1:(V+1)]
+      alpha_new = beta_new[(1:V)+ V+1]
+      err = sum((beta_old[-1]-beta_new[-1])^2)
+      iter=iter+1
+      if (verbose==TRUE){print(c(iter, err))}
     }
+    betaest[,j]=beta_new
+  }
 
   cest =betaest[1,]
   medest = betaest[(1:V)+1,]*betaest[(1:V)+V+1,]

@@ -47,7 +47,8 @@ sparse.mediation.old = function(X,M,Y,tol=10^(-10),max.iter=100,lambda = log(1+(
                                 glmnet.penalty.factor=c(0,rep(1,2*V)),alpha=1,tau=1,verbose=FALSE){
 
 
-  ## Center all values, and also make their scales to be 1. In this context, all coefficients will be dexribed in terms of correlation or partial correlations.
+  ## Center all values, and also make their scales to be 1. In this context,
+  # all coefficients will be dexribed in terms of correlation or partial correlations.
   N = nrow(M)
   V = ncol(M)
   Y.mean=mean(Y)
@@ -107,11 +108,13 @@ sparse.mediation.old = function(X,M,Y,tol=10^(-10),max.iter=100,lambda = log(1+(
       C = ginv(sqmatA) %*% rbind(tUY/sigma1, Sigma2.inv%*%tMX)
 
 
-      fit = glmnet(sqmatA, C,lambda=lam[j],penalty.factor=c(1,rep(1,V),taulist[j]*rep(1,V)),alpha=alphalist[j])
+      fit = glmnet(sqmatA, C,lambda=lam[j],penalty.factor=c(1,rep(1,V),
+                                                            taulist[j]*rep(1,V)),alpha=alphalist[j])
 
 
       beta_new = as.vector(predict(fit,type="coef"))[-1]
-      ## use thresholds as well: since all variables are standardized, coefficients less than 0.001 does not have any meaning.
+      ## use thresholds as well: since all variables are standardized,
+      # coefficients less than 0.001 does not have any meaning.
       #if (threshold>0){
       #  beta_new[abs(beta_new)<threshold]<-0
       #}

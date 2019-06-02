@@ -61,7 +61,8 @@ sparse.mediation.largep_omega = function(X,M,Y,tol=10^(-10),max.iter=10,
                                          Omega.out=FALSE){
 
 
-  ## Center all values, and also make their scales to be 1. In this context, all coefficients will be dexribed in terms of correlation or partial correlations.
+  ## Center all values, and also make their scales to be 1. In this context,
+  # all coefficients will be dexribed in terms of correlation or partial correlations.
   N = nrow(M)
   V = ncol(M)
   #Y.mean=mean(Y)

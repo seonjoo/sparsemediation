@@ -67,7 +67,9 @@ N=100
 V=200
 set.seed(1234)
 covmat=matrix(0,V+2,V+2);
-covmat[1,2]=0.5;covmat[1, (1:3)+2]=rep(0.5,3);covmat[2, (1:3)+2]=rep(0.5,3);
+covmat[1,2]=0.5;
+covmat[1, (1:3)+2]=rep(0.5,3);
+covmat[2, (1:3)+2]=rep(0.5,3);
 covmat=covmat+t(covmat);diag(covmat)<-1
 sqrtmat = sqrtmat.comp(covmat)
 tmpmat = matrix(rnorm(N*(V+2)),N,V+2) \%*\% sqrtmat

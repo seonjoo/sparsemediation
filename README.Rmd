@@ -1,18 +1,27 @@
+---
+output: github_document
+---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
 # sparsemediation
 
 <!-- badges: start -->
-
 <!-- badges: end -->
 
 The goal of sparsemediation is to conduct sparse mediation analysis.
 
 ## Installation
 
-You can install the released version of sparsemediation from
-[CRAN](https://CRAN.R-project.org) with:
+You can install the released version of sparsemediation from [CRAN](https://CRAN.R-project.org) with:
 
 ``` r
 install.packages("sparsemediation")
@@ -25,13 +34,11 @@ And the development version from [GitHub](https://github.com/) with:
 devtools::install_github("muschellij2/sparsemediation")
 ```
 
+
 ## Usage
+The `sparse.mediation` function conducts sparse mediation for the specified tuning parameters for elastic net.  Cross-validation is possible using `cv.sparse.mediation`.
 
-The `sparse.mediation` function conducts sparse mediation for the
-specified tuning parameters for elastic net. Cross-validation is
-possible using `cv.sparse.mediation`.
-
-``` r
+```{r}
 library(sparsemediation)
 N = 100
 V = 50

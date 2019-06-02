@@ -63,7 +63,8 @@ a = rbinom(V,1,0.1)*5;b<-a
 X = rnorm(N)
 M =  X \%*\% t(a)+ matrix(rnorm(N*V),N,V)
 Y =  X + M \%*\% b + rnorm(N)
-sparse.mediation.old(X,M,Y,tol=10^(-10),max.iter=100,lambda = log(1+(1:25)/50))
+sparse.mediation.old(X,M,Y,tol=10^(-10),
+max.iter=100,lambda = log(1+(1:25)/50))
 }
 \references{
 TBA

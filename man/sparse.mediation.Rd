@@ -2,11 +2,20 @@
 % Please edit documentation in R/sparse.mediation.R
 \name{sparse.mediation}
 \alias{sparse.mediation}
-\title{Conduct sparse mediation with elastic net}
+\title{Sparse mediation for high-dimensional mediators
+
+Fit a mediation model via penalized maximum likelihood and structural equation model.
+The regularization path is computed for the lasso or elasticnet penalty at a grid of
+values for the regularization parameter lambda. Currently, mediation analysis is developed based on gaussian assumption.
+
+Multiple Mediaton Model:
+(1) M = Xa + e1
+(2) Y = Xc' + Mb + e2
+And in the optimization, we do not regularize c', due to the assumption of partial mediation.}
 \usage{
-sparse.mediation(X, M, Y, tol = 10^(-5), max.iter = 50, lambda = log(1 +
-  (1:30)/100), lambda2 = c(0.3, 0.5), alpha = 1, tau = 1,
-  verbose = FALSE, Omega.out = FALSE)
+sparse.mediation(X, M, Y, tol = 10^(-5), max.iter = 50,
+  lambda = log(1 + (1:30)/100), lambda2 = c(0.3, 0.5), alpha = 1,
+  tau = 1, verbose = FALSE, Omega.out = FALSE)
 }
 \arguments{
 \item{X}{One-dimensional predictor}
@@ -51,11 +60,12 @@ nump: Number of selected mediation paths
 Omega Estimated covariance matrix of the mediator
 }
 \description{
+Sparse mediation for high-dimensional mediators
+
 Fit a mediation model via penalized maximum likelihood and structural equation model.
 The regularization path is computed for the lasso or elasticnet penalty at a grid of
 values for the regularization parameter lambda. Currently, mediation analysis is developed based on gaussian assumption.
-}
-\details{
+
 Multiple Mediaton Model:
 (1) M = Xa + e1
 (2) Y = Xc' + Mb + e2

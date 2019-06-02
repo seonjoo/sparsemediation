@@ -16,6 +16,7 @@
 #' @keywords highdimensional mediation L1penalization
 #' @import parallel
 #' @import MASS
+#' @importFrom stats var predict
 #' @export
 
 ginv.largep<-function(x.c,sqrtmat=TRUE, sqrtinvmat=TRUE){

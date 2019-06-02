@@ -1,4 +1,4 @@
-#' Conduct sparse mediation with elastic net
+#' @title Sparse mediation for high-dimensional mediators
 #'
 #' Fit a mediation model via penalized maximum likelihood and structural equation model.
 #' The regularization path is computed for the lasso or elasticnet penalty at a grid of
@@ -46,6 +46,7 @@
 #' @import glmnet
 #' @import Matrix
 #' @import QUIC
+#' @importFrom stats var predict
 #' @export
 
 sparse.mediation = function(X,M,Y,tol=10^(-5),max.iter=50,

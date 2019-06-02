@@ -5,8 +5,8 @@
 \title{Conduct sparse mediation with elastic net (Old version)}
 \usage{
 sparse.mediation.old(X, M, Y, tol = 10^(-10), max.iter = 100,
-  lambda = log(1 + (1:50)/125), glmnet.penalty.factor = c(0, rep(1, 2 * V)),
-  alpha = 1, tau = 1, verbose = FALSE)
+  lambda = log(1 + (1:50)/125), glmnet.penalty.factor = c(0, rep(1, 2 *
+  V)), alpha = 1, tau = 1, verbose = FALSE)
 }
 \arguments{
 \item{X}{One-dimensional predictor}

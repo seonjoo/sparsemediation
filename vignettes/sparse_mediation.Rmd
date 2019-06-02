@@ -1,0 +1,73 @@
+---
+title: "sparse_mediation"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{sparse_mediation}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(sparsemediation)
+library(ggplot2)
+library(gridExtra)
+library(dplyr)
+```
+
+
+The sparsemediation package conduct penalized structural equation models to select mediators out of high-dimensional data. 
+
+## Data: example data (p<n)
+```{r}
+n=100
+v=50
+set.seed(1234)
+a = rep(0,v);a[1:3]<-0.5;b<-a
+x = rnorm(n)
+m =  x %*% t(a)+ matrix(rnorm(n*v),n,v)
+y =  x + m %*% b + rnorm(n)
+```
+
+```{r,echo=FALSE,fig.width=8}
+fig1=ggplot(data.frame(y=y,x=x),aes(y=y,x=x))+
+  geom_point()+stat_smooth(method='lm')
+fig2=ggplot(data.frame(y=m[,1],x=x),aes(y=y,x=x))+
+  geom_point()+stat_smooth(method='lm')+ylab('M1')
+fig3=ggplot(data.frame(y=m[,2],x=x),aes(y=y,x=x))+
+  geom_point()+stat_smooth(method='lm')+ylab('M2')
+fig4=ggplot(data.frame(y=m[,3],x=x),aes(y=y,x=x))+
+  geom_point()+stat_smooth(method='lm')+ylab('M3')
+grid.arrange(fig1,fig2,fig3,fig4,nrow=1)
+```
+
+```{r,fig.width=8}
+fit<-sparse.mediation(x,m,y,lambda=seq(0.01,0.5,length=10),lambda2=c(0.2,0.5))
+fitdat=data.frame(M=t(fit$medest), lambda1=fit$lambda1, lambda2=paste('lambda2',fit$lambda2,sep='='))
+
+library(reshape2)
+
+ggplot(melt(fitdat, id=c('lambda1','lambda2')),
+       aes(x=lambda1,y=value,group=variable,colour=variable)) +
+  geom_line() + facet_grid(.~lambda2) + theme(legend.position='none') + 
+  ylab('Mediation')
+```
+
+## 5-fold cross-validation for parameter selection
+```{r}
+set.seed(1234)
+cvfit<-cv.sparse.mediation(x, m, y, K = 5,lambda=seq(0.01,0.5,length=5),lambda2=c(0.1,0.3))
+cvdat=data.frame(mse=cvfit$mse, stderr=sqrt(cvfit$mse.var), lambda1=cvfit$lambda1, lambda2=cvfit$lambda2)
+
+ggplot(cvdat,aes(x=lambda1,y=mse,colour=factor(lambda2)))+
+  geom_line()+geom_point(shape=15)+
+  geom_errorbar(aes(ymin=mse-stderr, ymax=mse+stderr) )
+```
+
+

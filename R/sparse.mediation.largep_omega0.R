@@ -31,17 +31,17 @@
 #' @examples
 #' library(sparsemediation)
 #' N=100
-#' V=500
+#' V=200
 #' set.seed(1234)
-#'     covmat=matrix(0,V+2,V+2);
-#'     covmat[1,2]=0.5;covmat[1, (1:3)+2]=rep(r.a,3);covmat[2, (1:3)+2]=rep(r.b,3);
-#'     covmat=covmat+t(covmat);diag(covmat)<-1
-#'     sqrtmat = sqrtmat.comp(covmat)
-#'     tmpmat = matrix(rnorm(N*(V+2)),N,V+2) %*% sqrtmat
-#'     X=tmpmat[,1]
-#'     Y=tmpmat[,2]
-#'     M=tmpmat[,-c(1:2)]
-#'     sparse.mediation.largep(X,M,Y,tol=10^(-10),max.iter=100,lambda = log(1+(1:25)/50))
+#' covmat=matrix(0,V+2,V+2);
+#' covmat[1,2]=0.5;covmat[1, (1:3)+2]=rep(0.5,3);covmat[2, (1:3)+2]=rep(0.5,3);
+#' covmat=covmat+t(covmat);diag(covmat)<-1
+#' sqrtmat = sqrtmat.comp(covmat)
+#' tmpmat = matrix(rnorm(N*(V+2)),N,V+2) %*% sqrtmat
+#' X=tmpmat[,1]
+#' Y=tmpmat[,2]
+#' M=tmpmat[,-c(1:2)]
+#' #sparse.mediation.largep_omega0(X,M,Y)
 #'
 #' @author Seonjoo Lee, \email{sl3670@cumc.columbia.edu}
 #' @references TBA
@@ -50,9 +50,10 @@
 #' @import MASS
 #' @import glmnet
 #' @import QUIC
+#' @importFrom stats var predict
 #' @export
 sparse.mediation.largep_omega0 = function(X,M,Y,tol=10^(-10),max.iter=10,
-                                         lambda2=0.3,lambda1 = log(1+(1:50)/125),
+                                         lambda2=0.3,lambda1 = seq(0.02,0.4,length=5),
                                          #glmnet.penalty.factor=rep(1,1+2*V),
                                          tau=1,
                                          alpha=1,verbose=FALSE,

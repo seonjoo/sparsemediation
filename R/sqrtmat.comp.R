@@ -17,6 +17,7 @@
 #' @import MASS
 #' @import glmnet
 #' @import rsvd
+#' @importFrom stats var predict coef rnorm
 #' @export
 
 sqrtmat.comp<-function(mat,thresh=10^(-20),K=NULL){

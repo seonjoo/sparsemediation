@@ -31,23 +31,21 @@
 #' X = rnorm(N)
 #' M =  X %*% t(a)+ matrix(rnorm(N*V),N,V)
 #' Y =  as.vector(X + M %*% b + rnorm(N))
-#' cvfit<-cv.sparse.mediation(X, M, Y, K = 4, lambda=c(0.05,0.2,length=5), tau=c(0.5,1,2),multicore =1)
-#' cvfit$cv.lambda
-#' cvfit$cv.tau
-#' fit<-sparse.mediation(X,M,Y,lambda = cvfit$cv.lambda, alpha=cvfit$cv.alpha,tau=cvfit$cv.tau)
+#' #cvfit<-cv.sparse.mediation(X, M, Y, K = 4)
 #' @author Seonjoo Lee, \email{sl3670@cumc.columbia.edu}
 #' @references TBA
 #' @keywords hdlfpca glmnet
 #' @import parallel
 #' @import MASS
 #' @import glmnet
+#' @importFrom stats var predict
 #' @export
 
 
 cv.sparse.mediation= function(X,M,Y,tol=10^(-10),K=5,max.iter=100,
                               lambda = log(1+(1:15)/50),
                               lambda2 = c(0.2,0.5),
-                              alpha=1,tau=c(0.5,1,2),
+                              alpha=1,tau=c(1),
                               multicore=1,seednum=1000000,verbose=FALSE){
 
   ## Center all values
@@ -85,13 +83,22 @@ cv.sparse.mediation= function(X,M,Y,tol=10^(-10),K=5,max.iter=100,
   mseest=apply(do.call(cbind,
                        lapply(z,function(x){re=NA;tmp=x$mse;if(is.numeric(tmp)==TRUE){re=tmp};return(re)})),1,
                function(x)mean(x, na.rm=TRUE))
+  mseest.var=apply(do.call(cbind,
+                       lapply(z,function(x){re=NA;tmp=x$mse;if(is.numeric(tmp)==TRUE){re=tmp};return(re)})),1,
+               function(x)var(x, na.rm=TRUE))
+  lambda1=z[[1]]$re$lambda1
+  lambda2=z[[1]]$re$lambda2
+
+
   minloc=which.min(mseest)
   min.lambda1=z[[1]]$re$lambda1[minloc]
   min.lambda2=z[[1]]$re$lambda2[minloc]
   min.alpha=z[[1]]$re$alpha[minloc]
   min.tau=z[[1]]$re$tau[minloc]
 
-  return(list(cv.lambda1=min.lambda1,cv.lambda2=min.lambda2,cv.tau=min.tau, cv.alpha=min.alpha,cv.mse=mseest[minloc],mse=mseest))
+  return(list(cv.lambda1=min.lambda1,cv.lambda2=min.lambda2,cv.tau=min.tau,
+              cv.alpha=min.alpha,cv.mse=mseest[minloc],mse=mseest,mse.var=mseest.var,
+              lambda1=lambda1,lambda2=lambda2))
 }
 
 
